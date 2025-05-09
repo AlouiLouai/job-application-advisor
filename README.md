@@ -2,7 +2,7 @@
 
 A multi-screen web application that helps candidates determine if they should apply for specific job opportunities by analyzing their CV against job descriptions.
 
-![Job Application Advisor Screenshot](/main.png?height=400&width=800)
+![Job Application Advisor Screenshot](/public/main.png?height=400&width=800)
 
 ## Table of Contents
 
