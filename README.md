@@ -35,7 +35,7 @@ Job Application Advisor is a Next.js application designed to help job seekers ma
 
 ## Technical Stack
 
-- **Framework**: Next.js 14 (App Router)
+- **Framework**: Next.js 15 (App Router)
 - **UI Components**: shadcn/ui
 - **Styling**: Tailwind CSS
 - **Icons**: Lucide React
@@ -46,5 +46,5 @@ Job Application Advisor is a Next.js application designed to help job seekers ma
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/job-application-advisor.git
+   git clone https://github.com/AlouiLouai/job-application-advisor.git
    cd job-application-advisor
