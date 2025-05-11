@@ -36,7 +36,7 @@ export default function ResultScreen({ result, onGenerateCoverLetter, onFixCv, o
       <Card className="w-full max-w-3xl shadow-lg">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold text-gray-800">Application Analysis Results</CardTitle>
-          <CardDescription>Here's our assessment of your job application</CardDescription>
+          <CardDescription>Here&apos;s our assessment of your job application</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="flex flex-col items-center justify-center space-y-4">
@@ -49,9 +49,7 @@ export default function ResultScreen({ result, onGenerateCoverLetter, onFixCv, o
 
           <div className="relative w-full h-6 bg-gray-200 rounded-full overflow-hidden">
             <div
-              className={`absolute top-0 left-0 h-full rounded-full ${
-                match_percentage >= 80 ? "bg-green-500" : match_percentage >= 65 ? "bg-amber-500" : "bg-red-500"
-              }`}
+              className={`absolute top-0 left-0 h-full rounded-full ${match_percentage >= 80 ? "bg-green-500" : match_percentage >= 65 ? "bg-amber-500" : "bg-red-500"}`}
               style={{ width: `${match_percentage}%` }}
             ></div>
           </div>
@@ -80,7 +78,7 @@ export default function ResultScreen({ result, onGenerateCoverLetter, onFixCv, o
             <div className="bg-red-50 border border-red-200 p-4 rounded-lg">
               <h4 className="font-medium text-red-800 mb-2">Needs improvement</h4>
               <p className="text-red-700">
-                Your profile doesn't match well with this job. Would you like suggestions on how to improve your CV for
+                Your profile doesn&apos;t match well with this job. Would you like suggestions on how to improve your CV for
                 this position?
               </p>
               <Button className="mt-4 bg-red-600 hover:bg-red-700 text-white w-full" onClick={onFixCv}>

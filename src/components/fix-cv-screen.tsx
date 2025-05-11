@@ -82,7 +82,7 @@ export default function FixCvScreen({
       <Card className="w-full max-w-3xl shadow-lg">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold text-gray-800">CV Improvement Suggestions</CardTitle>
-          <CardDescription>Here's how you can improve your CV for this specific job</CardDescription>
+          <CardDescription>Here&apos;s how you can improve your CV for this specific job</CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading ? (
