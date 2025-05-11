@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { CircleCheck, CircleAlert, AlertCircle, FileText, RefreshCw, ArrowRight } from "lucide-react"
+import { CheckCircle, AlertCircle, AlertTriangle, FileText, RefreshCw, ArrowRight } from "lucide-react"
 
 type ResultProps = {
   result: {
@@ -26,8 +26,8 @@ export default function ResultScreen({ result, onGenerateCoverLetter, onFixCv, o
   }
 
   const getIcon = () => {
-    if (match_percentage >= 80) return <CircleCheck className="h-12 w-12 text-green-600" />
-    if (match_percentage >= 65) return <CircleAlert className="h-12 w-12 text-amber-600" />
+    if (match_percentage >= 80) return <CheckCircle className="h-12 w-12 text-green-600" />
+    if (match_percentage >= 65) return <AlertTriangle className="h-12 w-12 text-amber-600" />
     return <AlertCircle className="h-12 w-12 text-red-600" />
   }
 

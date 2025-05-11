@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Loader2, Download, ArrowLeft, Copy } from "lucide-react"
 import { useState, useEffect } from "react"
 import { generateCoverLetter } from "@/lib/api"
+import { generateCoverLetterPDF } from "@/lib/pdf-utils"
 
 type CoverLetterScreenProps = {
   cv: File | null
@@ -26,6 +27,7 @@ export default function CoverLetterScreen({
   const [copied, setCopied] = useState(false)
   const [coverLetter, setCoverLetter] = useState("")
   const [error, setError] = useState<string | null>(null)
+  const [isPdfGenerating, setIsPdfGenerating] = useState(false)
 
   useEffect(() => {
     async function fetchCoverLetter() {
@@ -55,6 +57,24 @@ export default function CoverLetterScreen({
     navigator.clipboard.writeText(coverLetter)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
+  }
+
+  const handleDownloadPDF = async () => {
+    try {
+      setIsPdfGenerating(true)
+
+      // Dynamically import jsPDF to ensure it only loads on the client
+      const { jsPDF } = await import("jspdf")
+      await import("jspdf-autotable")
+
+      // Generate and download the PDF
+      generateCoverLetterPDF(coverLetter)
+    } catch (err) {
+      console.error("Error generating PDF:", err)
+      alert("Failed to generate PDF. Please try again.")
+    } finally {
+      setIsPdfGenerating(false)
+    }
   }
 
   return (
@@ -122,9 +142,23 @@ export default function CoverLetterScreen({
           </Button>
           <Button onClick={onReset}>Start Over</Button>
           {!isLoading && !error && coverLetter && (
-            <Button variant="default" className="bg-green-600 hover:bg-green-700">
-              <Download className="mr-2 h-4 w-4" />
-              Download as PDF
+            <Button
+              variant="default"
+              className="bg-green-600 hover:bg-green-700"
+              onClick={handleDownloadPDF}
+              disabled={isPdfGenerating}
+            >
+              {isPdfGenerating ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Generating PDF...
+                </>
+              ) : (
+                <>
+                  <Download className="mr-2 h-4 w-4" />
+                  Download as PDF
+                </>
+              )}
             </Button>
           )}
         </CardFooter>
