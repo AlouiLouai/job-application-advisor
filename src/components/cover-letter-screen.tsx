@@ -3,34 +3,56 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Loader2, Download, ArrowLeft, Copy } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { generateCoverLetter } from "@/lib/api"
 
 type CoverLetterScreenProps = {
+  cv: File | null
+  jobDescription: string
   isLoading: boolean
+  setIsLoading: (loading: boolean) => void
   onBack: () => void
   onReset: () => void
 }
 
-export default function CoverLetterScreen({ isLoading, onBack, onReset }: CoverLetterScreenProps) {
+export default function CoverLetterScreen({
+  cv,
+  jobDescription,
+  isLoading,
+  setIsLoading,
+  onBack,
+  onReset,
+}: CoverLetterScreenProps) {
   const [copied, setCopied] = useState(false)
+  const [coverLetter, setCoverLetter] = useState("")
+  const [error, setError] = useState<string | null>(null)
 
-  const sampleCoverLetter = `Dear Hiring Manager,
+  useEffect(() => {
+    async function fetchCoverLetter() {
+      if (!cv || !jobDescription) {
+        setError("Missing CV or job description")
+        setIsLoading(false)
+        return
+      }
 
-I am writing to express my interest in the Backend Engineer position at your company. After reviewing the job description, I believe my technical skills and experience make me a strong candidate for this role.
+      try {
+        const generatedCoverLetter = await generateCoverLetter(cv, jobDescription)
+        setCoverLetter(generatedCoverLetter)
+      } catch (err) {
+        console.error("Error generating cover letter:", err)
+        setError("Failed to generate cover letter. Please try again.")
+      } finally {
+        setIsLoading(false)
+      }
+    }
 
-With over 3 years of experience in backend development, I have developed expertise in microservices architecture, CI/CD pipelines, and cloud infrastructure using AWS. While my primary experience has been with Node.js, NestJS, and Python, I am confident in my ability to quickly adapt to Java/Kotlin and Spring Boot frameworks given my strong foundation in object-oriented programming principles and microservices architecture.
-
-In my current role at XYZ Company, I successfully implemented a scalable messaging system using Kafka that improved system reliability by 40%. I also have extensive experience with Docker containerization and monitoring tools like Prometheus and Grafana, which align perfectly with your technical environment.
-
-I am particularly drawn to your company's innovative approach to solving complex problems and your commitment to building scalable, resilient systems. I am excited about the opportunity to contribute to your team and help drive the development of your backend infrastructure.
-
-Thank you for considering my application. I look forward to the possibility of discussing how my background, technical skills, and experiences would be an asset to your team.
-
-Sincerely,
-[Your Name]`
+    if (isLoading) {
+      fetchCoverLetter()
+    }
+  }, [cv, jobDescription, isLoading, setIsLoading])
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(sampleCoverLetter)
+    navigator.clipboard.writeText(coverLetter)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
@@ -49,6 +71,21 @@ Sincerely,
               <h3 className="text-lg font-medium">Generating your cover letter...</h3>
               <p className="text-sm text-gray-500">This may take a moment</p>
             </div>
+          ) : error ? (
+            <div className="bg-red-50 border border-red-200 p-4 rounded-lg text-center">
+              <h4 className="font-medium text-red-800 mb-2">Error</h4>
+              <p className="text-red-700">{error}</p>
+              <Button
+                variant="outline"
+                className="mt-4"
+                onClick={() => {
+                  setError(null)
+                  setIsLoading(true)
+                }}
+              >
+                Try Again
+              </Button>
+            </div>
           ) : (
             <div className="space-y-4">
               <div className="flex justify-end">
@@ -65,7 +102,7 @@ Sincerely,
                   )}
                 </Button>
               </div>
-              <div className="bg-white border rounded-lg p-6 whitespace-pre-line font-serif">{sampleCoverLetter}</div>
+              <div className="bg-white border rounded-lg p-6 whitespace-pre-line font-serif">{coverLetter}</div>
               <div className="bg-green-50 border border-green-200 p-4 rounded-lg">
                 <h4 className="font-medium text-green-800 mb-2">Pro Tips:</h4>
                 <ul className="list-disc list-inside text-green-700 space-y-2">
@@ -84,7 +121,7 @@ Sincerely,
             Back to Results
           </Button>
           <Button onClick={onReset}>Start Over</Button>
-          {!isLoading && (
+          {!isLoading && !error && coverLetter && (
             <Button variant="default" className="bg-green-600 hover:bg-green-700">
               <Download className="mr-2 h-4 w-4" />
               Download as PDF

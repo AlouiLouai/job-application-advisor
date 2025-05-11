@@ -51,10 +51,6 @@ export default function Home() {
   const handleGenerateCoverLetter = () => {
     setSecondaryLoading(true)
     setCurrentScreen("coverLetter")
-    // Simulate API call
-    setTimeout(() => {
-      setSecondaryLoading(false)
-    }, 3000)
   }
 
   const handleFixCv = () => {
@@ -87,7 +83,10 @@ export default function Home() {
   if (currentScreen === "coverLetter") {
     return (
       <CoverLetterScreen
+        cv={file}
+        jobDescription={jobDescription}
         isLoading={secondaryLoading}
+        setIsLoading={setSecondaryLoading}
         onBack={() => setCurrentScreen("result")}
         onReset={resetToInput}
       />
