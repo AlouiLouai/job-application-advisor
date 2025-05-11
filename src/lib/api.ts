@@ -1,21 +1,24 @@
 export async function analyzeApplication(cv: File, jobDescription: string) {
   // Create form data
-  const formData = new FormData()
-  formData.append("cv", cv)
-  formData.append("job_description", jobDescription)
+  const formData = new FormData();
+  formData.append("cv", cv);
+  formData.append("job_description", jobDescription);
 
   try {
     // Send the POST request to the specified endpoint
-    const response = await fetch("https://n8n.connectorzzz.com/webhook-test/getdata", {
-      method: "POST",
-      body: formData,
-    })
+    const response = await fetch(
+      "https://n8n.connectorzzz.com/webhook-test/getdata",
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
 
     if (!response.ok) {
-      throw new Error(`API request failed with status ${response.status}`)
+      throw new Error(`API request failed with status ${response.status}`);
     }
 
-    return await response.json()
+    return await response.json();
 
     // If you need to test without making actual API calls, you can use this mock:
     /*
@@ -31,7 +34,35 @@ export async function analyzeApplication(cv: File, jobDescription: string) {
     }
     */
   } catch (error) {
-    console.error("Error analyzing application:", error)
-    throw new Error("Failed to analyze application")
+    console.error("Error analyzing application:", error);
+    throw new Error("Failed to analyze application");
+  }
+}
+
+export async function generateCoverLetter(cv: File, jobDescription: string) {
+  // Create form data
+  const formData = new FormData();
+  formData.append("cv", cv);
+  formData.append("job_description", jobDescription);
+
+  try {
+    // Send the POST request to the specified endpoint
+    const response = await fetch(
+      "https://n8n.connectorzzz.com/webhook-test/cover_letter",
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`API request failed with status ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.cover_letter || ""; // Assuming the API returns an object with a cover_letter field
+  } catch (error) {
+    console.error("Error generating cover letter:", error);
+    throw new Error("Failed to generate cover letter");
   }
 }
