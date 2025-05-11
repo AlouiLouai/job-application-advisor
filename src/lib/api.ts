@@ -7,7 +7,7 @@ export async function analyzeApplication(cv: File, jobDescription: string) {
   try {
     // Send the POST request to the specified endpoint
     const response = await fetch(
-      "https://n8n.connectorzzz.com/webhook-test/getdata",
+      "https://n8n.connectorzzz.com/webhook/getdata",
       {
         method: "POST",
         body: formData,
@@ -48,7 +48,7 @@ export async function generateCoverLetter(cv: File, jobDescription: string) {
   try {
     // Send the POST request to the specified endpoint
     const response = await fetch(
-      "https://n8n.connectorzzz.com/webhook-test/cover_letter",
+      "https://n8n.connectorzzz.com/webhook/cover_letter",
       {
         method: "POST",
         body: formData,

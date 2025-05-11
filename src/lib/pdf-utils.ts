@@ -1,7 +1,7 @@
 import { jsPDF } from "jspdf"
 import "jspdf-autotable"
 
-export function generateCoverLetterPDF(coverLetter: string, candidateName = "Your Name"): void {
+export function generateCoverLetterPDF(coverLetter: string, candidateName = ""): void {
   // Initialize PDF document
   const doc = new jsPDF({
     orientation: "portrait",
@@ -44,7 +44,6 @@ export function generateCoverLetterPDF(coverLetter: string, candidateName = "You
   // Add a line for contact info (placeholder)
   doc.setFont("helvetica", "normal")
   doc.setFontSize(10)
-  doc.text("your.email@example.com | (123) 456-7890 | City, State", margin, margin + 15)
 
   // Add a separator line
   doc.setDrawColor(200, 200, 200)

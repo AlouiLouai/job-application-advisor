@@ -64,7 +64,6 @@ export default function CoverLetterScreen({
       setIsPdfGenerating(true)
 
       // Dynamically import jsPDF to ensure it only loads on the client
-      const { jsPDF } = await import("jspdf")
       await import("jspdf-autotable")
 
       // Generate and download the PDF
