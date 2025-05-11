@@ -56,10 +56,6 @@ export default function Home() {
   const handleFixCv = () => {
     setSecondaryLoading(true)
     setCurrentScreen("fixCv")
-    // Simulate API call
-    setTimeout(() => {
-      setSecondaryLoading(false)
-    }, 3000)
   }
 
   const resetToInput = () => {
@@ -94,7 +90,16 @@ export default function Home() {
   }
 
   if (currentScreen === "fixCv") {
-    return <FixCvScreen isLoading={secondaryLoading} onBack={() => setCurrentScreen("result")} onReset={resetToInput} />
+    return (
+      <FixCvScreen
+        cv={file}
+        jobDescription={jobDescription}
+        isLoading={secondaryLoading}
+        setIsLoading={setSecondaryLoading}
+        onBack={() => setCurrentScreen("result")}
+        onReset={resetToInput}
+      />
+    )
   }
 
   return (

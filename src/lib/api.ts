@@ -66,3 +66,36 @@ export async function generateCoverLetter(cv: File, jobDescription: string) {
     throw new Error("Failed to generate cover letter");
   }
 }
+
+export async function improveCV(cv: File, jobDescription: string) {
+  const formData = new FormData()
+  formData.append("cv", cv)
+  formData.append("job_description", jobDescription)
+
+  try {
+    const response = await fetch("https://n8n.connectorzzz.com/webhook/improve_cv", {
+      method: "POST",
+      body: formData,
+    })
+
+    if (!response.ok) {
+      throw new Error(`API request failed with status ${response.status}`)
+    }
+
+    const json = await response.json()
+    const data = Array.isArray(json) ? json[0] : json
+
+    if (!data || typeof data !== "object") {
+      throw new Error("Invalid API response structure")
+    }
+
+    return {
+      gap_analysis: data.gap_analysis?.trim() || "",
+      improvements: Array.isArray(data.improvements) ? data.improvements : [],
+    }
+  } catch (error) {
+    console.error("❌ CV API error:", error)
+    throw new Error("Failed to get CV improvement tips")
+  }
+}
+
