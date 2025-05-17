@@ -18,21 +18,19 @@ export async function analyzeApplication(cv: File, jobDescription: string) {
       throw new Error(`API request failed with status ${response.status}`);
     }
 
-    return await response.json();
-
-    // If you need to test without making actual API calls, you can use this mock:
-    /*
-    // Simulate API call delay
-    await new Promise((resolve) => setTimeout(resolve, 2000))
-
-    // Mock response
-    return {
-      match_percentage: 70,
-      recommendation: "Maybe",
-      explanation:
-        "The candidate has strong backend engineering experience with 3+ years including relevant skills in microservices, CI/CD, AWS, Kafka, Docker, and monitoring tools like Prometheus and Grafana, which align well with the job's technical environment. However, the candidate primarily uses Node.js, NestJS, and Python rather than the requested Java or Kotlin and Spring Boot frameworks, which are core to the job description. The CV demonstrates impactful achievements and experience in agile teams, collaboration, and scalable system design, matching the role's expectations in responsibility and teamwork. While lacking direct experience in Java/Kotlin and specific Spring Boot frameworks reduces the fit, familiarity with AWS, Kafka, and CI/CD tools partially mitigates this gap.",
+    const result = await response.json();
+    
+    // Track the event in Google Analytics
+    if (typeof window !== "undefined" && window.gtag) {
+      window.gtag("event", "analyze_application", {
+        event_category: "user_action",
+        event_label: "Application Analyzed",
+        match_percentage: result.match_percentage,
+        recommendation: result.recommendation
+      });
     }
-    */
+
+    return result;
   } catch (error) {
     console.error("Error analyzing application:", error);
     throw new Error("Failed to analyze application");
@@ -60,6 +58,16 @@ export async function generateCoverLetter(cv: File, jobDescription: string) {
     }
 
     const data = await response.json();
+    
+    // Track the event in Google Analytics
+    if (typeof window !== "undefined" && window.gtag) {
+      window.gtag("event", "generate_cover_letter", {
+        event_category: "user_action",
+        event_label: "Cover Letter Generated",
+        content_length: data.cover_letter?.length || 0
+      });
+    }
+    
     return data.cover_letter || ""; // Assuming the API returns an object with a cover_letter field
   } catch (error) {
     console.error("Error generating cover letter:", error);
@@ -88,6 +96,15 @@ export async function improveCV(cv: File, jobDescription: string) {
     if (!data || typeof data !== "object") {
       throw new Error("Invalid API response structure")
     }
+    
+    // Track the event in Google Analytics
+    if (typeof window !== "undefined" && window.gtag) {
+      window.gtag("event", "improve_cv", {
+        event_category: "user_action",
+        event_label: "CV Improvement Suggested",
+        improvements_count: Array.isArray(data.improvements) ? data.improvements.length : 0
+      });
+    }
 
     return {
       gap_analysis: data.gap_analysis?.trim() || "",
@@ -98,4 +115,3 @@ export async function improveCV(cv: File, jobDescription: string) {
     throw new Error("Failed to get CV improvement tips")
   }
 }
-

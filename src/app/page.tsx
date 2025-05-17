@@ -7,11 +7,13 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
-import { Loader2, Upload, FileText, CheckCircle } from "lucide-react"
+import { Loader2, Upload, FileText, CheckCircle, BarChart3 } from 'lucide-react'
 import { analyzeApplication } from "@/lib/api"
 import ResultScreen from "@/components/result-screen"
 import CoverLetterScreen from "@/components/cover-letter-screen"
 import FixCvScreen from "@/components/fix-cv-screen"
+import AnalyticsDashboard from "@/components/analytics-dashboard"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 
 export default function Home() {
   const [file, setFile] = useState<File | null>(null)
@@ -24,6 +26,7 @@ export default function Home() {
     explanation: string
   } | null>(null)
   const [secondaryLoading, setSecondaryLoading] = useState(false)
+  const [statsOpen, setStatsOpen] = useState(false)
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -104,6 +107,44 @@ export default function Home() {
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-4 bg-gray-50">
+      {/* Analytics Dashboard in a collapsible panel */}
+      <div className="w-full max-w-3xl mb-4">
+        <Collapsible
+          open={statsOpen}
+          onOpenChange={setStatsOpen}
+          className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden transition-all duration-200"
+        >
+          <CollapsibleTrigger asChild>
+            <div className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 transition-colors">
+              <div className="flex items-center">
+                <BarChart3 className="h-5 w-5 text-blue-500 mr-2" />
+                <h3 className="text-sm font-medium text-gray-700">Usage Statistics</h3>
+              </div>
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                <span className="sr-only">Toggle stats</span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className={`transform transition-transform duration-200 ${statsOpen ? 'rotate-180' : ''}`}
+                >
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </Button>
+            </div>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="px-4 pb-4">
+            <AnalyticsDashboard />
+          </CollapsibleContent>
+        </Collapsible>
+      </div>
+
       <Card className="w-full max-w-3xl shadow-lg">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold text-gray-800">Job Application Advisor</CardTitle>
