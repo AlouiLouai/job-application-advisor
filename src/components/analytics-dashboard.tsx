@@ -1,8 +1,10 @@
+// components/analytics-dashboard.tsx
 "use client";
 
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, FileText, RefreshCw, AlertTriangle } from 'lucide-react';
+import { Users, FileText, RefreshCw, AlertTriangle, Info } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 type Stats = {
   activeUsers: string;
@@ -31,6 +33,15 @@ export default function AnalyticsDashboard() {
     } catch (err) {
       console.error("Error fetching stats:", err);
       setError(err instanceof Error ? err.message : "Could not load analytics data");
+      
+      // Set fallback stats if we don't have any yet
+      if (!stats) {
+        setStats({
+          activeUsers: "0",
+          coverLettersGenerated: "0",
+          cvImprovementsSuggested: "0"
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -53,52 +64,63 @@ export default function AnalyticsDashboard() {
     );
   }
 
-  if (error) {
-    return (
-      <div className="text-center p-4 text-red-500 bg-red-50 rounded-lg border border-red-200">
-        <div className="flex items-center justify-center mb-2">
-          <AlertTriangle className="h-5 w-5 mr-2" />
-          <p className="font-medium">Error loading analytics</p>
-        </div>
-        <p className="text-sm">{error}</p>
-      </div>
-    );
-  }
-
   return (
-    <div className="grid gap-4 md:grid-cols-3">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Active Users</CardTitle>
-          <Users className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{stats?.activeUsers || "0"}</div>
-          <p className="text-xs text-muted-foreground">Users in the last 30 minutes</p>
-        </CardContent>
-      </Card>
+    <div className="space-y-4">
+      {error && (
+        <div className="text-center p-2 text-amber-600 bg-amber-50 rounded-lg border border-amber-200 text-sm mb-4">
+          <div className="flex items-center justify-center gap-2">
+            <AlertTriangle className="h-4 w-4" />
+            <p>Analytics data may not be accurate</p>
+          </div>
+        </div>
+      )}
+      
+      <div className="grid gap-4 md:grid-cols-3">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Active Users
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Info className="h-3.5 w-3.5 ml-1 text-muted-foreground inline-block" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="text-xs">Users in the past 7 days</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats?.activeUsers || "0"}</div>
+            <p className="text-xs text-muted-foreground">Past 7 days</p>
+          </CardContent>
+        </Card>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Cover Letters</CardTitle>
-          <FileText className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{stats?.coverLettersGenerated || "0"}</div>
-          <p className="text-xs text-muted-foreground">Total cover letters generated</p>
-        </CardContent>
-      </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Cover Letters</CardTitle>
+            <FileText className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats?.coverLettersGenerated || "0"}</div>
+            <p className="text-xs text-muted-foreground">Total generated</p>
+          </CardContent>
+        </Card>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">CV Improvements</CardTitle>
-          <RefreshCw className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{stats?.cvImprovementsSuggested || "0"}</div>
-          <p className="text-xs text-muted-foreground">Total CV improvements suggested</p>
-        </CardContent>
-      </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">CV Improvements</CardTitle>
+            <RefreshCw className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats?.cvImprovementsSuggested || "0"}</div>
+            <p className="text-xs text-muted-foreground">Total suggested</p>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

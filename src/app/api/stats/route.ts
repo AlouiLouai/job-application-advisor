@@ -14,14 +14,20 @@ const propertyId = process.env.GOOGLE_ANALYTICS_PROPERTY_ID;
 
 export async function GET() {
   try {
-    console.log("Fetching analytics data...");
+    console.log("Fetching analytics data with property ID:", propertyId);
     
+    // Verify credentials are loaded properly
+    if (!process.env.GOOGLE_ANALYTICS_CLIENT_EMAIL || !process.env.GOOGLE_ANALYTICS_PRIVATE_KEY) {
+      throw new Error("Google Analytics credentials are missing");
+    }
+
     // Get active users for today
+    console.log("Fetching active users...");
     const [activeUsersResponse] = await analyticsDataClient.runReport({
       property: `properties/${propertyId}`,
       dateRanges: [
         {
-          startDate: "today",  // Changed from "30minAgo" to "today"
+          startDate: "7daysAgo",  // Changed to last 7 days for more meaningful data
           endDate: "today",
         },
       ],
@@ -31,54 +37,74 @@ export async function GET() {
         },
       ],
     });
+    
+    console.log("Active users response:", JSON.stringify(activeUsersResponse, null, 2));
 
     // Get total cover letters generated (custom event)
-    const [coverLettersResponse] = await analyticsDataClient.runReport({
-      property: `properties/${propertyId}`,
-      dateRanges: [
-        {
-          startDate: "30daysAgo",
-          endDate: "today",
-        },
-      ],
-      metrics: [
-        {
-          name: "eventCount",
-        },
-      ],
-      dimensionFilter: {
-        filter: {
-          fieldName: "eventName",
-          stringFilter: {
-            value: "generate_cover_letter",
+    console.log("Fetching cover letter events...");
+    let coverLettersResponse;
+    try {
+      [coverLettersResponse] = await analyticsDataClient.runReport({
+        property: `properties/${propertyId}`,
+        dateRanges: [
+          {
+            startDate: "30daysAgo",
+            endDate: "today",
+          },
+        ],
+        metrics: [
+          {
+            name: "eventCount",
+          },
+        ],
+        dimensionFilter: {
+          filter: {
+            fieldName: "eventName",
+            stringFilter: {
+              value: "generate_cover_letter",
+              matchType: "EXACT",
+            },
           },
         },
-      },
-    });
+      });
+      console.log("Cover letters response:", JSON.stringify(coverLettersResponse, null, 2));
+    } catch (error) {
+      console.error("Error fetching cover letter events:", error);
+      coverLettersResponse = { rows: [] };
+    }
 
     // Get total CV improvements (custom event)
-    const [cvImprovementsResponse] = await analyticsDataClient.runReport({
-      property: `properties/${propertyId}`,
-      dateRanges: [
-        {
-          startDate: "30daysAgo",
-          endDate: "today",
-        },
-      ],
-      metrics: [
-        {
-          name: "eventCount",
-        },
-      ],
-      dimensionFilter: {
-        filter: {
-          fieldName: "eventName",
-          stringFilter: {
-            value: "improve_cv",
+    console.log("Fetching CV improvement events...");
+    let cvImprovementsResponse;
+    try {
+      [cvImprovementsResponse] = await analyticsDataClient.runReport({
+        property: `properties/${propertyId}`,
+        dateRanges: [
+          {
+            startDate: "30daysAgo",
+            endDate: "today",
+          },
+        ],
+        metrics: [
+          {
+            name: "eventCount",
+          },
+        ],
+        dimensionFilter: {
+          filter: {
+            fieldName: "eventName",
+            stringFilter: {
+              value: "improve_cv",
+              matchType: "EXACT",
+            },
           },
         },
-      },
-    });
+      });
+      console.log("CV improvements response:", JSON.stringify(cvImprovementsResponse, null, 2));
+    } catch (error) {
+      console.error("Error fetching CV improvement events:", error);
+      cvImprovementsResponse = { rows: [] };
+    }
 
     // Extract the values from the responses
     const activeUsers = activeUsersResponse.rows?.[0]?.metricValues?.[0]?.value || "0";
@@ -102,6 +128,7 @@ export async function GET() {
       {
         error: "Failed to fetch analytics data",
         details: error instanceof Error ? error.message : "Unknown error",
+        stack: error instanceof Error ? error.stack : undefined,
       },
       { status: 500 }
     );
