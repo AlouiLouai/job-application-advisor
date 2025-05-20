@@ -38,7 +38,6 @@ export async function GET() {
       ],
     });
     
-    console.log("Active users response:", JSON.stringify(activeUsersResponse, null, 2));
 
     // Get total cover letters generated (custom event)
     console.log("Fetching cover letter events...");
@@ -67,14 +66,12 @@ export async function GET() {
           },
         },
       });
-      console.log("Cover letters response:", JSON.stringify(coverLettersResponse, null, 2));
     } catch (error) {
       console.error("Error fetching cover letter events:", error);
       coverLettersResponse = { rows: [] };
     }
 
     // Get total CV improvements (custom event)
-    console.log("Fetching CV improvement events...");
     let cvImprovementsResponse;
     try {
       [cvImprovementsResponse] = await analyticsDataClient.runReport({
@@ -100,7 +97,6 @@ export async function GET() {
           },
         },
       });
-      console.log("CV improvements response:", JSON.stringify(cvImprovementsResponse, null, 2));
     } catch (error) {
       console.error("Error fetching CV improvement events:", error);
       cvImprovementsResponse = { rows: [] };
@@ -111,19 +107,12 @@ export async function GET() {
     const coverLettersGenerated = coverLettersResponse.rows?.[0]?.metricValues?.[0]?.value || "0";
     const cvImprovementsSuggested = cvImprovementsResponse.rows?.[0]?.metricValues?.[0]?.value || "0";
 
-    console.log("Analytics data fetched successfully:", {
-      activeUsers,
-      coverLettersGenerated,
-      cvImprovementsSuggested,
-    });
-
     return NextResponse.json({
       activeUsers,
       coverLettersGenerated,
       cvImprovementsSuggested,
     });
   } catch (error) {
-    console.error("Error fetching analytics data:", error);
     return NextResponse.json(
       {
         error: "Failed to fetch analytics data",
