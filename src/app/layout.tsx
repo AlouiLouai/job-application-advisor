@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono } from 'next/font/google';
 import { GoogleAnalytics } from "@next/third-parties/google";
 import "./globals.css";
+import Header from "@/components/header"; // Added Header import
 
 // Fonts
 const geistSans = Geist({
@@ -40,9 +41,16 @@ export default function RootLayout({
   return (
     <html lang="en" dir="ltr" className="scroll-smooth">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white text-black`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white text-black flex flex-col h-screen overflow-hidden`}
       >
-        {children}
+        {/* Header with profile */}
+        <Header />
+        
+        {/* Main content */}
+        <main className="flex-1 overflow-hidden">
+          {children}
+        </main>
+        
         <GoogleAnalytics gaId="G-GYSTWLYX1T" />
       </body>
     </html>

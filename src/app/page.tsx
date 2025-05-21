@@ -225,7 +225,7 @@ export default function Home() {
 
   return (
     <div
-      className={`flex h-screen overflow-hidden transition-opacity duration-500 ${
+      className={`flex h-full overflow-hidden transition-opacity duration-500 ${
         animateIn ? "opacity-100" : "opacity-0"
       }`}
     >
