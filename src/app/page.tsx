@@ -276,19 +276,22 @@ export default function Home() {
       </div>
 
       {/* Chat panel - 1/3 width */}
-      {/* Chat panel - 1/3 width */}
-      <div className="w-1/3 h-full border-l border-gray-200 relative bg-gray-50 flex items-center justify-center">
-        <div className="absolute inset-0 bg-yellow-50 bg-opacity-90 z-10 flex flex-col items-center justify-center text-center px-4">
-          <div className="text-yellow-800 text-lg font-semibold mb-2">
-            🚧 Assistant Chatbot Coming Soon
-          </div>
-          <p className="text-sm text-yellow-700">
-            We're working hard to make your assistant smarter and more helpful.
-          </p>
-        </div>
-        {/* Still render ChatPanel in background, just hidden or blurred for dev view */}
-        <div className="opacity-20 pointer-events-none blur-sm">
+      <div className="relative w-1/3 h-full border-l border-gray-200 bg-gray-50 group">
+        {/* Chat panel always visible and interactive */}
+        <div className="h-full w-full">
           <ChatPanel />
+        </div>
+
+        {/* Tooltip only on hover – vertically centered */}
+        <div className="absolute inset-0 z-20 hidden group-hover:flex items-center justify-center pointer-events-none">
+          <div className="bg-yellow-100 border border-yellow-300 text-yellow-900 text-base px-6 py-5 rounded-xl shadow-xl text-center max-w-sm pointer-events-none">
+            <h3 className="font-semibold text-xl mb-2">
+              🚧 Assistant Chatbot Coming Soon
+            </h3>
+            <p className="text-base">
+               We&apos;re working hard to make your assistant smarter and more helpful.
+            </p>
+          </div>
         </div>
       </div>
     </div>
