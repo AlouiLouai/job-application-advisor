@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useEffect, useState } from "react"
-import { Users, FileText, RefreshCw, TrendingUp } from "lucide-react"
+import { Users, FileText, RefreshCw, BarChart } from "lucide-react"
 
 type Stats = {
   activeUsers: string
@@ -61,11 +61,11 @@ export default function AnalyticsDashboard() {
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-      <div className="flex items-center justify-between px-4 py-2 bg-gray-50 border-b">
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      <div className="flex items-center justify-between px-3 py-2 bg-gray-50 border-b">
         <div className="flex items-center">
-          <TrendingUp className="h-4 w-4 text-gray-500 mr-2" />
-          <h3 className="text-sm font-medium text-gray-700">Usage Statistics</h3>
+          <BarChart className="h-3.5 w-3.5 text-gray-500 mr-1.5" />
+          <h3 className="text-xs font-medium text-gray-700">Usage Statistics</h3>
         </div>
         <button
           onClick={fetchStats}
