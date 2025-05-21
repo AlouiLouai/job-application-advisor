@@ -12,22 +12,43 @@ const analyticsDataClient = new BetaAnalyticsDataClient({
 
 const propertyId = process.env.GOOGLE_ANALYTICS_PROPERTY_ID;
 
+// Utility to fetch custom event count
+async function fetchEventCount(propertyId: string, eventName: string): Promise<number> {
+  try {
+    const [response] = await analyticsDataClient.runReport({
+      property: `properties/${propertyId}`,
+      dateRanges: [{ startDate: "30daysAgo", endDate: "today" }],
+      metrics: [{ name: "eventCount" }],
+      dimensionFilter: {
+        filter: {
+          fieldName: "eventName",
+          stringFilter: {
+            value: eventName,
+            matchType: "EXACT",
+          },
+        },
+      },
+    });
+    return Number(response.rows?.[0]?.metricValues?.[0]?.value || 0);
+  } catch (error) {
+    console.error(`Error fetching ${eventName} events:`, error);
+    return 0;
+  }
+}
+
 export async function GET() {
   try {
-    console.log("Fetching analytics data with property ID:", propertyId);
-    
-    // Verify credentials are loaded properly
+
     if (!process.env.GOOGLE_ANALYTICS_CLIENT_EMAIL || !process.env.GOOGLE_ANALYTICS_PRIVATE_KEY) {
       throw new Error("Google Analytics credentials are missing");
     }
 
-    // Get active users for today
-    console.log("Fetching active users...");
+    // Get active users for last 7 days
     const [activeUsersResponse] = await analyticsDataClient.runReport({
       property: `properties/${propertyId}`,
       dateRanges: [
         {
-          startDate: "7daysAgo",  // Changed to last 7 days for more meaningful data
+          startDate: "7daysAgo",
           endDate: "today",
         },
       ],
@@ -37,75 +58,12 @@ export async function GET() {
         },
       ],
     });
-    
 
-    // Get total cover letters generated (custom event)
-    console.log("Fetching cover letter events...");
-    let coverLettersResponse;
-    try {
-      [coverLettersResponse] = await analyticsDataClient.runReport({
-        property: `properties/${propertyId}`,
-        dateRanges: [
-          {
-            startDate: "30daysAgo",
-            endDate: "today",
-          },
-        ],
-        metrics: [
-          {
-            name: "eventCount",
-          },
-        ],
-        dimensionFilter: {
-          filter: {
-            fieldName: "eventName",
-            stringFilter: {
-              value: "generate_cover_letter",
-              matchType: "EXACT",
-            },
-          },
-        },
-      });
-    } catch (error) {
-      console.error("Error fetching cover letter events:", error);
-      coverLettersResponse = { rows: [] };
-    }
-
-    // Get total CV improvements (custom event)
-    let cvImprovementsResponse;
-    try {
-      [cvImprovementsResponse] = await analyticsDataClient.runReport({
-        property: `properties/${propertyId}`,
-        dateRanges: [
-          {
-            startDate: "30daysAgo",
-            endDate: "today",
-          },
-        ],
-        metrics: [
-          {
-            name: "eventCount",
-          },
-        ],
-        dimensionFilter: {
-          filter: {
-            fieldName: "eventName",
-            stringFilter: {
-              value: "improve_cv",
-              matchType: "EXACT",
-            },
-          },
-        },
-      });
-    } catch (error) {
-      console.error("Error fetching CV improvement events:", error);
-      cvImprovementsResponse = { rows: [] };
-    }
-
-    // Extract the values from the responses
     const activeUsers = activeUsersResponse.rows?.[0]?.metricValues?.[0]?.value || "0";
-    const coverLettersGenerated = coverLettersResponse.rows?.[0]?.metricValues?.[0]?.value || "0";
-    const cvImprovementsSuggested = cvImprovementsResponse.rows?.[0]?.metricValues?.[0]?.value || "0";
+
+    // Fetch custom event counts
+    const coverLettersGenerated = await fetchEventCount(propertyId!, "generate_cover_letter");
+    const cvImprovementsSuggested = await fetchEventCount(propertyId!, "improve_cv");
 
     return NextResponse.json({
       activeUsers,
