@@ -1,103 +1,97 @@
-"use client"
+"use client";
 
-import type React from "react"
-
-import { useState, useRef, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Send, Bot, User, ThumbsUp, ThumbsDown } from "lucide-react"
-import { cn } from "@/lib/utils"
+import type React from "react";
+import { useState, useRef, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Send, Bot, User, ThumbsUp, ThumbsDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 type Message = {
-  id: string
-  content: string
-  role: "user" | "assistant"
-  timestamp: Date
-}
+  id: string;
+  content: string;
+  role: "user" | "assistant";
+  timestamp: Date;
+};
 
 type SuggestedQuestion = {
-  id: string
-  text: string
-}
+  id: string;
+  text: string;
+};
 
 type ChatPanelProps = {
   context?: {
-    screen?: string
-    matchPercentage?: number
-    hasFile?: boolean
-    hasJobDescription?: boolean
-  }
-}
+    screen?: string;
+    matchPercentage?: number;
+    hasFile?: boolean;
+    hasJobDescription?: boolean;
+  };
+};
 
 export default function ChatPanel({ context }: ChatPanelProps) {
-  const [message, setMessage] = useState("")
-  const [messages, setMessages] = useState<Message[]>([])
-  const [isLoading, setIsLoading] = useState(false)
-  const [suggestedQuestions, setSuggestedQuestions] = useState<SuggestedQuestion[]>([])
-  const messagesEndRef = useRef<HTMLDivElement>(null)
-  const inputRef = useRef<HTMLInputElement>(null)
-  const [animateIn, setAnimateIn] = useState(false)
-
-  // Sample responses for demo purposes
-  const sampleResponses = [
-    "I recommend tailoring your CV to highlight skills that match the job description. Focus on quantifiable achievements that demonstrate your expertise.",
-    "When writing your cover letter, focus on specific achievements that demonstrate your qualifications. Try to address the key requirements mentioned in the job posting.",
-    "For this type of role, emphasize your experience with similar projects or technologies. Recruiters often look for candidates who can hit the ground running.",
-    "Based on the job description, you might want to highlight your leadership experience. Use concrete examples of how you've led teams or projects to success.",
-    "Remember to quantify your achievements with specific metrics when possible. Numbers make your accomplishments more tangible and impressive to hiring managers.",
-  ]
+  const [message, setMessage] = useState("");
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [suggestedQuestions, setSuggestedQuestions] = useState<
+    SuggestedQuestion[]
+  >([]);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [animateIn, setAnimateIn] = useState(false);
 
   // Generate welcome message and suggested questions based on context
   useEffect(() => {
-    let welcomeMessage = "Hi there! I'm your Job Application Assistant. How can I help you today?"
+    let welcomeMessage =
+      "Hi there! I'm your Job Application Assistant. How can I help you today?";
     let questions: SuggestedQuestion[] = [
       { id: "q1", text: "How do I improve my CV?" },
       { id: "q2", text: "What makes a good cover letter?" },
       { id: "q3", text: "How do I prepare for an interview?" },
-    ]
+    ];
 
     if (context?.screen === "result" && context.matchPercentage !== undefined) {
       if (context.matchPercentage >= 80) {
         welcomeMessage =
-          "Great job! You have a strong match with this position. Would you like help with your cover letter?"
+          "Great job! You have a strong match with this position. Would you like help with your cover letter?";
         questions = [
           { id: "q1", text: "How do I highlight my strengths?" },
           { id: "q2", text: "What should I include in my cover letter?" },
           { id: "q3", text: "How do I address salary expectations?" },
-        ]
+        ];
       } else if (context.matchPercentage >= 65) {
         welcomeMessage =
-          "You have a decent match with this position. I can help you highlight your strengths in a cover letter."
+          "You have a decent match with this position. I can help you highlight your strengths in a cover letter.";
         questions = [
           { id: "q1", text: "How can I stand out from other candidates?" },
           { id: "q2", text: "Should I address my weaker matches?" },
           { id: "q3", text: "What skills should I emphasize?" },
-        ]
+        ];
       } else {
         welcomeMessage =
-          "I see your match is below 65%. Would you like suggestions on how to improve your CV for this role?"
+          "I see your match is below 65%. Would you like suggestions on how to improve your CV for this role?";
         questions = [
           { id: "q1", text: "What skills am I missing?" },
           { id: "q2", text: "Should I still apply?" },
           { id: "q3", text: "How can I improve my CV?" },
-        ]
+        ];
       }
     } else if (context?.screen === "coverLetter") {
-      welcomeMessage = "I'm here to help with your cover letter. Do you need any specific advice?"
+      welcomeMessage =
+        "I'm here to help with your cover letter. Do you need any specific advice?";
       questions = [
         { id: "q1", text: "How long should my cover letter be?" },
         { id: "q2", text: "What format should I use?" },
         { id: "q3", text: "How do I address the hiring manager?" },
-      ]
+      ];
     } else if (context?.screen === "fixCv") {
       welcomeMessage =
-        "I can help you improve your CV. What specific skills or experiences would you like to highlight?"
+        "I can help you improve your CV. What specific skills or experiences would you like to highlight?";
       questions = [
         { id: "q1", text: "How do I show relevant experience?" },
         { id: "q2", text: "What skills should I add?" },
         { id: "q3", text: "How do I explain employment gaps?" },
-      ]
+      ];
     }
 
     setMessages([
@@ -107,34 +101,34 @@ export default function ChatPanel({ context }: ChatPanelProps) {
         role: "assistant",
         timestamp: new Date(),
       },
-    ])
+    ]);
 
-    setSuggestedQuestions(questions)
+    setSuggestedQuestions(questions);
 
     // Trigger animation after component mounts
     setTimeout(() => {
-      setAnimateIn(true)
-    }, 100)
-  }, [context])
+      setAnimateIn(true);
+    }, 100);
+  }, [context]);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-  }
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
   useEffect(() => {
-    scrollToBottom()
-  }, [messages])
+    scrollToBottom();
+  }, [messages]);
 
   useEffect(() => {
     if (inputRef.current) {
-      inputRef.current.focus()
+      inputRef.current.focus();
     }
-  }, [])
+  }, []);
 
   const handleSendMessage = async (e?: React.FormEvent) => {
-    e?.preventDefault()
+    e?.preventDefault();
 
-    if (!message.trim()) return
+    if (!message.trim()) return;
 
     // Add user message
     const userMessage: Message = {
@@ -142,50 +136,135 @@ export default function ChatPanel({ context }: ChatPanelProps) {
       content: message,
       role: "user",
       timestamp: new Date(),
-    }
+    };
 
-    setMessages((prev) => [...prev, userMessage])
-    setMessage("")
-    setIsLoading(true)
+    setMessages((prev) => [...prev, userMessage]);
+    setMessage("");
+    setIsLoading(true);
 
-    // Simulate API delay
-    setTimeout(() => {
-      // Get random response for demo
-      const responseIndex = Math.floor(Math.random() * sampleResponses.length)
+    try {
+      // Send POST request to n8n webhook
+      const response = await fetch(
+        "https://n8n.connectorzzz.com/webhook/chatbot",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            message: userMessage.content,
+            // context, // Uncomment and include context if needed by the webhook
+          }),
+        }
+      ).catch((fetchError) => {
+        console.error("Fetch error details:", fetchError);
+        if (fetchError.message.includes("Failed to fetch")) {
+          throw new Error(
+            "CORS error: The server is not allowing requests from this application. Please try again later or contact support."
+          );
+        }
+        throw new Error(`Failed to fetch: ${fetchError.message}`);
+      });
 
-      const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        content: sampleResponses[responseIndex],
-        role: "assistant",
-        timestamp: new Date(),
+      // Check if response is OK
+      if (!response.ok) {
+        if (response.status === 404) {
+          throw new Error(
+            "Webhook endpoint not found. Please check the server configuration."
+          );
+        }
+        throw new Error(`HTTP error! Status: ${response.status}`);
       }
 
-      setMessages((prev) => [...prev, assistantMessage])
-      setIsLoading(false)
+      // Read response as text first to check for empty or invalid content
+      const text = await response.text();
 
-      // Generate new suggested questions
+      let data = null;
+      if (text) {
+        try {
+          data = JSON.parse(text);
+        } catch (jsonError) {
+          console.error("Failed to parse JSON:", text, jsonError);
+          throw new Error("Invalid JSON response from webhook");
+        }
+      }
+
+      // Create assistant message, checking multiple possible fields
+      const assistantMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        content:
+          data?.output || // Check direct 'output' field
+          (Array.isArray(data) && data[0]?.output) ||
+          data?.response ||
+          data?.message ||
+          data?.text ||
+          "The server responded, but no reply was provided. Please try again or rephrase your question.",
+        role: "assistant",
+        timestamp: new Date(),
+      };
+
+      setMessages((prev) => [...prev, assistantMessage]);
+
+      // Update suggested questions if provided by the webhook, otherwise use defaults
+      const newSuggestedQuestions = (Array.isArray(data) &&
+      data[0]?.suggestedQuestions?.length
+        ? data[0].suggestedQuestions
+        : data?.suggestedQuestions?.length
+        ? data.suggestedQuestions
+        : []
+      ).map((q: string, index: number) => ({
+        id: `sq-${Date.now()}-${index}`,
+        text: q,
+      })) || [
+        { id: `sq-${Date.now()}-1`, text: "Can you elaborate on that?" },
+        { id: `sq-${Date.now()}-2`, text: "How do I implement this advice?" },
+        { id: `sq-${Date.now()}-3`, text: "What's the next step?" },
+      ];
+
+      setSuggestedQuestions(newSuggestedQuestions);
+    } catch (error: unknown) {
+      console.error("Error communicating with n8n webhook:", error);
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        content: `An error occurred while processing your request: ${
+          error instanceof Error ? error.message : String(error)
+        }.`,
+        role: "assistant",
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+
+      // Retain default suggested questions on error
       setSuggestedQuestions([
         { id: `sq-${Date.now()}-1`, text: "Can you elaborate on that?" },
         { id: `sq-${Date.now()}-2`, text: "How do I implement this advice?" },
         { id: `sq-${Date.now()}-3`, text: "What's the next step?" },
-      ])
-    }, 1000)
-  }
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleSuggestedQuestion = (question: string) => {
-    setMessage(question)
-    handleSendMessage()
-  }
+    setMessage(question);
+    handleSendMessage();
+  };
 
   return (
-    <div className={`flex flex-col h-full transition-opacity duration-500 ${animateIn ? "opacity-100" : "opacity-0"}`}>
+    <div
+      className={`flex flex-col h-full transition-opacity duration-500 ${
+        animateIn ? "opacity-100" : "opacity-0"
+      }`}
+    >
       <div className="p-4 border-b bg-gradient-to-r from-green-50 to-green-100">
         <div className="flex items-center">
           <div className="h-10 w-10 rounded-full bg-green-600 flex items-center justify-center mr-3">
             <Bot className="h-5 w-5 text-white" />
           </div>
           <div>
-            <h3 className="font-bold text-lg text-gray-800">Job Application Assistant</h3>
+            <h3 className="font-bold text-lg text-gray-800">
+              Job Application Assistant
+            </h3>
             <p className="text-xs text-gray-500">Powered by AI</p>
           </div>
         </div>
@@ -194,11 +273,19 @@ export default function ChatPanel({ context }: ChatPanelProps) {
       <ScrollArea className="flex-1 p-4">
         <div className="space-y-6">
           {messages.map((msg) => (
-            <div key={msg.id} className={cn("flex", msg.role === "user" ? "justify-end" : "justify-start")}>
+            <div
+              key={msg.id}
+              className={cn(
+                "flex",
+                msg.role === "user" ? "justify-end" : "justify-start"
+              )}
+            >
               <div
                 className={cn(
                   "max-w-[85%] rounded-2xl px-4 py-3",
-                  msg.role === "user" ? "bg-green-600 text-white" : "bg-gray-100 text-gray-800 border border-gray-200",
+                  msg.role === "user"
+                    ? "bg-green-600 text-white"
+                    : "bg-gray-100 text-gray-800 border border-gray-200"
                 )}
               >
                 <div className="flex items-center space-x-2 mb-1">
@@ -212,7 +299,9 @@ export default function ChatPanel({ context }: ChatPanelProps) {
                       <User className="h-3 w-3 text-green-600" />
                     </div>
                   )}
-                  <span className="font-medium text-sm">{msg.role === "user" ? "You" : "Assistant"}</span>
+                  <span className="font-medium text-sm">
+                    {msg.role === "user" ? "You" : "Assistant"}
+                  </span>
                 </div>
                 <p className="text-sm leading-relaxed">{msg.content}</p>
 
@@ -256,7 +345,9 @@ export default function ChatPanel({ context }: ChatPanelProps) {
 
           {suggestedQuestions.length > 0 && !isLoading && (
             <div className="space-y-2">
-              <p className="text-xs text-gray-500 font-medium">Suggested questions:</p>
+              <p className="text-xs text-gray-500 font-medium">
+                Suggested questions:
+              </p>
               <div className="flex flex-wrap gap-2">
                 {suggestedQuestions.map((question) => (
                   <button
@@ -276,7 +367,10 @@ export default function ChatPanel({ context }: ChatPanelProps) {
       </ScrollArea>
 
       <div className="p-4 border-t bg-gray-50">
-        <form onSubmit={handleSendMessage} className="flex items-center space-x-2">
+        <form
+          onSubmit={handleSendMessage}
+          className="flex items-center space-x-2"
+        >
           <Input
             ref={inputRef}
             placeholder="Type your message..."
@@ -297,5 +391,5 @@ export default function ChatPanel({ context }: ChatPanelProps) {
         </form>
       </div>
     </div>
-  )
+  );
 }

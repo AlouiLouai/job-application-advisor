@@ -281,18 +281,6 @@ export default function Home() {
         <div className="h-full w-full">
           <ChatPanel />
         </div>
-
-        {/* Tooltip only on hover – vertically centered */}
-        <div className="absolute inset-0 z-20 hidden group-hover:flex items-center justify-center pointer-events-none">
-          <div className="bg-yellow-100 border border-yellow-300 text-yellow-900 text-base px-6 py-5 rounded-xl shadow-xl text-center max-w-sm pointer-events-none">
-            <h3 className="font-semibold text-xl mb-2">
-              🚧 Assistant Chatbot Coming Soon
-            </h3>
-            <p className="text-base">
-               We&apos;re working hard to make your assistant smarter and more helpful.
-            </p>
-          </div>
-        </div>
       </div>
     </div>
   );
