@@ -24,7 +24,7 @@ import { analyzeApplication } from "@/lib/api";
 import ResultScreen from "@/components/result-screen";
 import CoverLetterScreen from "@/components/cover-letter-screen";
 import FixCvScreen from "@/components/fix-cv-screen";
-import AnalyticsDashboard from "@/components/analytics-dashboard";
+import AnalyticsDashboard from "@/components/analytics/analytics-dashboard";
 import { Chat } from "@/components/chatbot/chat";
 
 export default function Home() {
