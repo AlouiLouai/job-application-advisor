@@ -153,6 +153,8 @@ export default function ChatPanel({ context }: ChatPanelProps) {
           },
           body: JSON.stringify({
             message: userMessage.content,
+            //sessionId: "static-user-123"
+            sessionId: 'user-123'
             // context, // Uncomment and include context if needed by the webhook
           }),
         }

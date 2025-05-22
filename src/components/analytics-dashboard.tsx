@@ -1,7 +1,5 @@
 "use client";
-
 import type React from "react";
-
 import { useEffect, useState } from "react";
 import { Users, FileText, RefreshCw, BarChart } from "lucide-react";
 
