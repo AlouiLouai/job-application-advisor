@@ -1,6 +1,5 @@
 "use client";
 import type React from "react";
-import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -20,74 +19,31 @@ import {
   ChevronRight,
   Sparkles,
 } from "lucide-react";
-import { analyzeApplication } from "@/lib/api";
 import ResultScreen from "@/components/result-screen";
 import CoverLetterScreen from "@/components/cover-letter-screen";
 import FixCvScreen from "@/components/fix-cv-screen";
 import AnalyticsDashboard from "@/components/analytics/analytics-dashboard";
 import { Chat } from "@/components/chatbot/chat";
+import { useApplicationAnalyzer } from "@/hooks/useApplicationAnalyzer";
 
 export default function Home() {
-  const [file, setFile] = useState<File | null>(null);
-  const [jobDescription, setJobDescription] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [currentScreen, setCurrentScreen] = useState<
-    "input" | "result" | "coverLetter" | "fixCv"
-  >("input");
-  const [result, setResult] = useState<{
-    match_percentage: number;
-    recommendation: string;
-    explanation: string;
-  } | null>(null);
-  const [secondaryLoading, setSecondaryLoading] = useState(false);
-  const [animateIn, setAnimateIn] = useState(false);
-
-  useEffect(() => {
-    // Trigger animation after component mounts
-    setAnimateIn(true);
-  }, []);
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0]);
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!file || !jobDescription) return;
-
-    setIsLoading(true);
-    try {
-      const result = await analyzeApplication(file, jobDescription);
-      setResult(result);
-      setCurrentScreen("result");
-    } catch (error) {
-      console.error("Error analyzing application:", error);
-      alert(
-        "An error occurred while analyzing your application. Please try again."
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleGenerateCoverLetter = () => {
-    setSecondaryLoading(true);
-    setCurrentScreen("coverLetter");
-  };
-
-  const handleFixCv = () => {
-    setSecondaryLoading(true);
-    setCurrentScreen("fixCv");
-  };
-
-  const resetToInput = () => {
-    setCurrentScreen("input");
-    setFile(null);
-    setJobDescription("");
-    setResult(null);
-  };
+  const {
+    currentScreen,
+    result,
+    handleGenerateCoverLetter,
+    handleFixCv,
+    reset,
+    file,
+    jobDescription,
+    setJobDescription,
+    isLoading,
+    secondaryLoading,
+    setSecondaryLoading,
+    setCurrentScreen,
+    handleSubmit,
+    handleFileChange,
+    animateIn,
+  } = useApplicationAnalyzer();
 
   // Render the appropriate screen based on the current state
   const renderMainContent = () => {
@@ -97,7 +53,7 @@ export default function Home() {
           result={result}
           onGenerateCoverLetter={handleGenerateCoverLetter}
           onFixCv={handleFixCv}
-          onReset={resetToInput}
+          onReset={reset}
         />
       );
     }
@@ -110,7 +66,7 @@ export default function Home() {
           isLoading={secondaryLoading}
           setIsLoading={setSecondaryLoading}
           onBack={() => setCurrentScreen("result")}
-          onReset={resetToInput}
+          onReset={reset}
         />
       );
     }
@@ -123,7 +79,7 @@ export default function Home() {
           isLoading={secondaryLoading}
           setIsLoading={setSecondaryLoading}
           onBack={() => setCurrentScreen("result")}
-          onReset={resetToInput}
+          onReset={reset}
         />
       );
     }
@@ -197,7 +153,10 @@ export default function Home() {
                       type="file"
                       accept=".pdf"
                       className="hidden"
-                      onChange={handleFileChange}
+                      onChange={(e) => {
+                        const selectedFile = e.target.files?.[0];
+                        if (selectedFile) handleFileChange(selectedFile);
+                      }}
                     />
                   </div>
                 </div>
