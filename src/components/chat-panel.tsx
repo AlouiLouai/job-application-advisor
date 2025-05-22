@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -40,59 +40,16 @@ export default function ChatPanel({ context }: ChatPanelProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [animateIn, setAnimateIn] = useState(false);
 
-  // Generate welcome message and suggested questions based on context
+  const sessionRef = useRef<string>("user-123");
+
   useEffect(() => {
-    let welcomeMessage =
+    const welcomeMessage =
       "Hi there! I'm your Job Application Assistant. How can I help you today?";
-    let questions: SuggestedQuestion[] = [
+    const questions: SuggestedQuestion[] = [
       { id: "q1", text: "How do I improve my CV?" },
       { id: "q2", text: "What makes a good cover letter?" },
       { id: "q3", text: "How do I prepare for an interview?" },
     ];
-
-    if (context?.screen === "result" && context.matchPercentage !== undefined) {
-      if (context.matchPercentage >= 80) {
-        welcomeMessage =
-          "Great job! You have a strong match with this position. Would you like help with your cover letter?";
-        questions = [
-          { id: "q1", text: "How do I highlight my strengths?" },
-          { id: "q2", text: "What should I include in my cover letter?" },
-          { id: "q3", text: "How do I address salary expectations?" },
-        ];
-      } else if (context.matchPercentage >= 65) {
-        welcomeMessage =
-          "You have a decent match with this position. I can help you highlight your strengths in a cover letter.";
-        questions = [
-          { id: "q1", text: "How can I stand out from other candidates?" },
-          { id: "q2", text: "Should I address my weaker matches?" },
-          { id: "q3", text: "What skills should I emphasize?" },
-        ];
-      } else {
-        welcomeMessage =
-          "I see your match is below 65%. Would you like suggestions on how to improve your CV for this role?";
-        questions = [
-          { id: "q1", text: "What skills am I missing?" },
-          { id: "q2", text: "Should I still apply?" },
-          { id: "q3", text: "How can I improve my CV?" },
-        ];
-      }
-    } else if (context?.screen === "coverLetter") {
-      welcomeMessage =
-        "I'm here to help with your cover letter. Do you need any specific advice?";
-      questions = [
-        { id: "q1", text: "How long should my cover letter be?" },
-        { id: "q2", text: "What format should I use?" },
-        { id: "q3", text: "How do I address the hiring manager?" },
-      ];
-    } else if (context?.screen === "fixCv") {
-      welcomeMessage =
-        "I can help you improve your CV. What specific skills or experiences would you like to highlight?";
-      questions = [
-        { id: "q1", text: "How do I show relevant experience?" },
-        { id: "q2", text: "What skills should I add?" },
-        { id: "q3", text: "How do I explain employment gaps?" },
-      ];
-    }
 
     setMessages([
       {
@@ -125,127 +82,130 @@ export default function ChatPanel({ context }: ChatPanelProps) {
     }
   }, []);
 
-  const handleSendMessage = async (e?: React.FormEvent) => {
-    e?.preventDefault();
+  const handleSendMessage = useCallback(
+    async (e?: React.FormEvent) => {
+      e?.preventDefault();
 
-    if (!message.trim()) return;
+      if (!message.trim()) return;
 
-    // Add user message
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      content: message,
-      role: "user",
-      timestamp: new Date(),
-    };
-
-    setMessages((prev) => [...prev, userMessage]);
-    setMessage("");
-    setIsLoading(true);
-
-    try {
-      // Send POST request to n8n webhook
-      const response = await fetch(
-        "https://n8n.connectorzzz.com/webhook/chatbot",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            message: userMessage.content,
-            //sessionId: "static-user-123"
-            sessionId: 'user-123'
-            // context, // Uncomment and include context if needed by the webhook
-          }),
-        }
-      ).catch((fetchError) => {
-        console.error("Fetch error details:", fetchError);
-        if (fetchError.message.includes("Failed to fetch")) {
-          throw new Error(
-            "CORS error: The server is not allowing requests from this application. Please try again later or contact support."
-          );
-        }
-        throw new Error(`Failed to fetch: ${fetchError.message}`);
-      });
-
-      // Check if response is OK
-      if (!response.ok) {
-        if (response.status === 404) {
-          throw new Error(
-            "Webhook endpoint not found. Please check the server configuration."
-          );
-        }
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-
-      // Read response as text first to check for empty or invalid content
-      const text = await response.text();
-
-      let data = null;
-      if (text) {
-        try {
-          data = JSON.parse(text);
-        } catch (jsonError) {
-          console.error("Failed to parse JSON:", text, jsonError);
-          throw new Error("Invalid JSON response from webhook");
-        }
-      }
-
-      // Create assistant message, checking multiple possible fields
-      const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        content:
-          data?.output || // Check direct 'output' field
-          (Array.isArray(data) && data[0]?.output) ||
-          data?.response ||
-          data?.message ||
-          data?.text ||
-          "The server responded, but no reply was provided. Please try again or rephrase your question.",
-        role: "assistant",
+      // Add user message
+      const userMessage: Message = {
+        id: Date.now().toString(),
+        content: message,
+        role: "user",
         timestamp: new Date(),
       };
 
-      setMessages((prev) => [...prev, assistantMessage]);
+      setMessages((prev) => [...prev, userMessage]);
+      setMessage("");
+      setIsLoading(true);
 
-      // Update suggested questions if provided by the webhook, otherwise use defaults
-      const newSuggestedQuestions = (Array.isArray(data) &&
-      data[0]?.suggestedQuestions?.length
-        ? data[0].suggestedQuestions
-        : data?.suggestedQuestions?.length
-        ? data.suggestedQuestions
-        : []
-      ).map((q: string, index: number) => ({
-        id: `sq-${Date.now()}-${index}`,
-        text: q,
-      })) || [
-        { id: `sq-${Date.now()}-1`, text: "Can you elaborate on that?" },
-        { id: `sq-${Date.now()}-2`, text: "How do I implement this advice?" },
-        { id: `sq-${Date.now()}-3`, text: "What's the next step?" },
-      ];
+      try {
+        // Send POST request to n8n webhook
+        const response = await fetch(
+          "https://n8n.connectorzzz.com/webhook/chatbot",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              message: userMessage.content,
+              //sessionId: "static-user-123"
+              sessionId: sessionRef.current,
+              // context, // Uncomment and include context if needed by the webhook
+            }),
+          }
+        ).catch((fetchError) => {
+          console.error("Fetch error details:", fetchError);
+          if (fetchError.message.includes("Failed to fetch")) {
+            throw new Error(
+              "CORS error: The server is not allowing requests from this application. Please try again later or contact support."
+            );
+          }
+          throw new Error(`Failed to fetch: ${fetchError.message}`);
+        });
 
-      setSuggestedQuestions(newSuggestedQuestions);
-    } catch (error: unknown) {
-      console.error("Error communicating with n8n webhook:", error);
-      const errorMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        content: `An error occurred while processing your request: ${
-          error instanceof Error ? error.message : String(error)
-        }.`,
-        role: "assistant",
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, errorMessage]);
+        // Check if response is OK
+        if (!response.ok) {
+          if (response.status === 404) {
+            throw new Error(
+              "Webhook endpoint not found. Please check the server configuration."
+            );
+          }
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
 
-      // Retain default suggested questions on error
-      setSuggestedQuestions([
-        { id: `sq-${Date.now()}-1`, text: "Can you elaborate on that?" },
-        { id: `sq-${Date.now()}-2`, text: "How do I implement this advice?" },
-        { id: `sq-${Date.now()}-3`, text: "What's the next step?" },
-      ]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+        // Read response as text first to check for empty or invalid content
+        const text = await response.text();
+
+        let data = null;
+        if (text) {
+          try {
+            data = JSON.parse(text);
+          } catch (jsonError) {
+            console.error("Failed to parse JSON:", text, jsonError);
+            throw new Error("Invalid JSON response from webhook");
+          }
+        }
+
+        // Create assistant message, checking multiple possible fields
+        const assistantMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          content:
+            data?.output || // Check direct 'output' field
+            (Array.isArray(data) && data[0]?.output) ||
+            data?.response ||
+            data?.message ||
+            data?.text ||
+            "The server responded, but no reply was provided. Please try again or rephrase your question.",
+          role: "assistant",
+          timestamp: new Date(),
+        };
+
+        setMessages((prev) => [...prev, assistantMessage]);
+
+        // Update suggested questions if provided by the webhook, otherwise use defaults
+        const newSuggestedQuestions = (Array.isArray(data) &&
+        data[0]?.suggestedQuestions?.length
+          ? data[0].suggestedQuestions
+          : data?.suggestedQuestions?.length
+          ? data.suggestedQuestions
+          : []
+        ).map((q: string, index: number) => ({
+          id: `sq-${Date.now()}-${index}`,
+          text: q,
+        })) || [
+          { id: `sq-${Date.now()}-1`, text: "Can you elaborate on that?" },
+          { id: `sq-${Date.now()}-2`, text: "How do I implement this advice?" },
+          { id: `sq-${Date.now()}-3`, text: "What's the next step?" },
+        ];
+
+        setSuggestedQuestions(newSuggestedQuestions);
+      } catch (error: unknown) {
+        console.error("Error communicating with n8n webhook:", error);
+        const errorMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          content: `An error occurred while processing your request: ${
+            error instanceof Error ? error.message : String(error)
+          }.`,
+          role: "assistant",
+          timestamp: new Date(),
+        };
+        setMessages((prev) => [...prev, errorMessage]);
+
+        // Retain default suggested questions on error
+        setSuggestedQuestions([
+          { id: `sq-${Date.now()}-1`, text: "Can you elaborate on that?" },
+          { id: `sq-${Date.now()}-2`, text: "How do I implement this advice?" },
+          { id: `sq-${Date.now()}-3`, text: "What's the next step?" },
+        ]);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [message]
+  );
 
   const handleSuggestedQuestion = (question: string) => {
     setMessage(question);

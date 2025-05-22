@@ -1,7 +1,5 @@
 "use client";
-
 import type React from "react";
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -27,7 +25,7 @@ import ResultScreen from "@/components/result-screen";
 import CoverLetterScreen from "@/components/cover-letter-screen";
 import FixCvScreen from "@/components/fix-cv-screen";
 import AnalyticsDashboard from "@/components/analytics-dashboard";
-import ChatPanel from "@/components/chat-panel";
+import { Chat } from "@/components/chatbot/chat";
 
 export default function Home() {
   const [file, setFile] = useState<File | null>(null);
@@ -279,7 +277,7 @@ export default function Home() {
       <div className="relative w-1/3 h-full border-l border-gray-200 bg-gray-50 group">
         {/* Chat panel always visible and interactive */}
         <div className="h-full w-full">
-          <ChatPanel />
+          <Chat />
         </div>
       </div>
     </div>
