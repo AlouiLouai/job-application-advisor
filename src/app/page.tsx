@@ -176,7 +176,7 @@ export default function Home() {
                   <Textarea
                     id="job-description"
                     placeholder="Paste the job description here..."
-                    className="flex-1 min-h-0 rounded-lg border-gray-300 focus:border-green-500 focus:ring-green-500"
+                    className="flex-1 min-h-[120px] rounded-lg border-gray-300 focus:border-green-500 focus:ring-green-500" // Added min-h-[120px]
                     value={jobDescription}
                     onChange={(e) => setJobDescription(e.target.value)}
                   />
@@ -216,7 +216,7 @@ export default function Home() {
                 <p className="text-xs text-gray-500">This may take a moment</p>
               </div>
               {/* Use the dynamic progress value from the hook */}
-              <Progress value={analysisProgress} className="h-2 rounded-full" />
+              <Progress value={analysisProgress} className="h-3 rounded-full" /> {/* Changed h-2 to h-3 */}
             </div>
           )}
         </div>
@@ -239,11 +239,13 @@ export default function Home() {
 
         {/* Chat panel - full width on small screens, 1/3 on medium and up */}
         {/* Added a subtle slide-in from right for the chat panel for visual appeal */}
-        <div className={`relative w-full md:w-1/3 h-full border-t md:border-t-0 md:border-l border-gray-200 bg-gray-50 group ${
+        {/* Changed h-full to h-auto for mobile, md:h-full for desktop to prevent excessive height on mobile */}
+        <div className={`relative w-full md:w-1/3 h-[50vh] md:h-full border-t md:border-t-0 md:border-l border-gray-200 bg-gray-50 group ${
           animateIn ? "animate-slide-in-right animate-duration-500 animate-delay-200" : "opacity-0"
         }`}>
           {/* Chat panel always visible and interactive */}
-          <div className="h-full w-full">
+          {/* h-[50vh] on mobile provides a defined area. md:h-full for desktop. */}
+          <div className="h-full w-full"> {/* Chat component is h-full, so it will fill this parent's defined height */}
             <Chat />
           </div>
         </div>

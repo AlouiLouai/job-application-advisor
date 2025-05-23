@@ -21,7 +21,11 @@ export function Chat() {
   } = useChat();
 
   return (
-    <div className="flex flex-col h-[600px] w-full max-w-3xl mx-auto border rounded-lg shadow-md bg-white">
+    // Replaced h-[600px] with h-full to make it flexible.
+    // Added w-full to ensure it takes the full width of its parent.
+    // Removed max-w-3xl and mx-auto as it's now meant to fill its container in page.tsx
+    // Removed border, rounded-lg, shadow-md as these are better handled by the parent container in page.tsx if needed
+    <div className="flex flex-col h-full w-full bg-white">
       <ChatMessage
         messages={messages}
         isLoading={isLoading}

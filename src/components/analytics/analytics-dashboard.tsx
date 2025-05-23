@@ -141,7 +141,7 @@ function StatCard({
       </div>
       <div className="flex items-baseline">
         <span className="text-xl font-bold text-gray-800">{value}</span>
-        <span className="ml-1.5 text-[10px] text-gray-500">{subtext}</span>
+        <span className="ml-1.5 text-xs text-gray-500">{subtext}</span> {/* Changed text-[10px] to text-xs */}
       </div>
     </div>
   );

@@ -10,6 +10,7 @@ import {
   Settings,
   User,
   LogOut,
+  Menu, // Import Menu icon
 } from "lucide-react";
 import Link from "next/link";
 
@@ -21,6 +22,7 @@ type HeaderUser = {
 
 export default function Header() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // State for mobile menu
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Mock user data - in a real app, this would come from authentication
@@ -64,8 +66,15 @@ export default function Header() {
       <header className="bg-white border-b border-gray-200 py-3 px-4 md:px-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
-            {/* Added md:mr-8 for larger screens, reduced default margin */}
-            <div className="text-green-600 font-bold text-lg mr-4 md:mr-8">
+            {/* Hamburger Menu Icon - visible on mobile, hidden on md and larger */}
+            <button
+              className="md:hidden mr-3 text-gray-600 hover:text-gray-900 focus:outline-none"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            >
+              <Menu className="h-6 w-6" />
+            </button>
+            {/* Adjusted md:mr-8 for larger screens, reduced default margin for mobile */}
+            <div className="text-green-600 font-bold text-lg mr-2 md:mr-8">
               JobAdvisor
             </div>
             <nav className="hidden md:flex space-x-6">
@@ -90,8 +99,8 @@ export default function Header() {
             </nav>
           </div>
 
-          {/* Adjusted spacing for icons on different screen sizes */}
-          <div className="flex items-center space-x-2 md:space-x-4">
+          {/* Adjusted spacing for icons on different screen sizes - ensure good spacing on mobile */}
+          <div className="flex items-center space-x-1 sm:space-x-2">
             <Button
               variant="ghost"
               size="icon"
@@ -109,7 +118,7 @@ export default function Header() {
 
             <div className="relative" ref={dropdownRef}>
               <button
-                className="flex items-center space-x-1 md:space-x-2 focus:outline-none"
+                className="flex items-center space-x-1 focus:outline-none" // Removed md:space-x-2 for consistent mobile spacing
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               >
                 <Avatar className="h-8 w-8 border border-gray-200">
@@ -119,8 +128,9 @@ export default function Header() {
                   />
                   <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
                 </Avatar>
+                {/* Chevron hidden on mobile, shown on md and up */}
                 <ChevronDown
-                  className={`h-4 w-4 text-gray-500 transition-transform ${
+                  className={`h-4 w-4 text-gray-500 transition-transform hidden md:block ${
                     isDropdownOpen ? "rotate-180" : ""
                   }`}
                 />
@@ -159,6 +169,34 @@ export default function Header() {
             </div>
           </div>
         </div>
+        {/* Mobile Navigation Menu */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden mt-3 border-t border-gray-200 pt-3">
+            <nav className="flex flex-col space-y-2">
+              <Link
+                href="#"
+                className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-md"
+                onClick={() => setIsMobileMenuOpen(false)} // Close menu on link click
+              >
+                Dashboard
+              </Link>
+              <Link
+                href="#"
+                className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-md"
+                onClick={() => setIsMobileMenuOpen(false)} // Close menu on link click
+              >
+                Applications
+              </Link>
+              <Link
+                href="#"
+                className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-md"
+                onClick={() => setIsMobileMenuOpen(false)} // Close menu on link click
+              >
+                Resources
+              </Link>
+            </nav>
+          </div>
+        )}
       </header>
     </>
   );
