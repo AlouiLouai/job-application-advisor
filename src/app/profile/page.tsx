@@ -6,12 +6,12 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { User, Edit3, Save, Loader2, Camera } from 'lucide-react'; // Added Camera icon
+import { User, Edit3, Save, Loader2, Camera, AlertTriangle } from 'lucide-react'; // Added AlertTriangle
 import { updateProfile } from 'firebase/auth'; // Import updateProfile
 
 const ProfilePage: React.FC = () => {
   const { user, loading: authLoading } = useAuth();
-  const router = useRouter();
+  const router = useRouter(); // Keep router if needed for other things, but not for login redirect
 
   const [displayName, setDisplayName] = useState('');
   const [photoURL, setPhotoURL] = useState('');
@@ -21,13 +21,12 @@ const ProfilePage: React.FC = () => {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!authLoading && !user) {
-      router.push('/login'); // Redirect to login if not authenticated
-    } else if (user) {
+    // No redirect here, just rely on the conditional rendering below
+    if (user) {
       setDisplayName(user.displayName || '');
       setPhotoURL(user.photoURL || '');
     }
-  }, [user, authLoading, router]);
+  }, [user]); // Removed authLoading and router from dependencies
 
   const handleEditToggle = () => {
     if (isEditing) {
@@ -78,14 +77,28 @@ const ProfilePage: React.FC = () => {
       .toUpperCase();
   };
 
-  if (authLoading || !user) {
+  if (authLoading) { // Show loader while auth state is resolving
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex flex-col items-center justify-center min-h-screen p-4">
         <Loader2 className="h-12 w-12 animate-spin text-green-600" />
+        <p className="mt-4 text-lg text-gray-700">Loading user session...</p>
       </div>
     );
   }
 
+  if (!user) { // If no user after loading, show sign-in prompt
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-6 text-center">
+        <AlertTriangle className="h-16 w-16 text-yellow-500 mb-6" />
+        <h1 className="text-2xl font-semibold text-gray-800 mb-3">Access Denied</h1>
+        <p className="text-gray-600 mb-8 max-w-md">
+          You need to be signed in to view your profile. Please use the 'Sign In' button in the header to authenticate.
+        </p>
+      </div>
+    );
+  }
+
+  // Original page content follows if user is authenticated
   return (
     <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8 max-w-2xl">
       <div className="bg-white shadow-xl rounded-lg p-6 sm:p-8">

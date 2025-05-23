@@ -2,27 +2,40 @@
 
 import React, { useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { useRouter } from 'next/navigation';
-import { Loader2, Settings as SettingsIcon } from 'lucide-react'; // Icon for settings
+import { useRouter } from 'next/navigation'; // Keep router for now, might be used for other things
+import { Loader2, Settings as SettingsIcon, AlertTriangle } from 'lucide-react'; // Added AlertTriangle
 
 const SettingsPage: React.FC = () => {
   const { user, loading: authLoading } = useAuth();
-  const router = useRouter();
+  const router = useRouter(); // Keep router for now
 
   useEffect(() => {
-    if (!authLoading && !user) {
-      router.push('/login'); // Redirect to login if not authenticated
-    }
-  }, [user, authLoading, router]);
+    // No redirect logic needed here due to conditional rendering below
+    // If user or authLoading changes, the component will re-render and evaluate the conditions.
+  }, [user, authLoading]); // Simplified dependencies, router not strictly needed for this effect now
 
-  if (authLoading || !user) {
+  if (authLoading) { // Show loader
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex flex-col items-center justify-center min-h-screen p-4">
         <Loader2 className="h-12 w-12 animate-spin text-green-600" />
+        <p className="mt-4 text-lg text-gray-700">Loading user session...</p>
       </div>
     );
   }
 
+  if (!user) { // If no user, show sign-in prompt
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-6 text-center">
+        <AlertTriangle className="h-16 w-16 text-yellow-500 mb-6" />
+        <h1 className="text-2xl font-semibold text-gray-800 mb-3">Access Denied</h1>
+        <p className="text-gray-600 mb-8 max-w-md">
+          You need to be signed in to view settings. Please use the 'Sign In' button in the header to authenticate.
+        </p>
+      </div>
+    );
+  }
+
+  // Original page content follows if user is authenticated
   return (
     <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8 max-w-2xl">
       <div className="bg-white shadow-xl rounded-lg p-6 sm:p-8">

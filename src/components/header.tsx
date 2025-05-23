@@ -10,23 +10,20 @@ import {
   Settings,
   User,
   LogOut,
-  Menu, // Import Menu icon
-  LogIn, // Import LogIn icon
+  Menu, 
+  LogIn, 
 } from "lucide-react";
 import Link from "next/link";
-import { useAuth } from "@/hooks/useAuth"; // Import useAuth
-import { useRouter } from "next/navigation"; // Import for router push
-
-// Removed HeaderUser type as user will come from useAuth
+import { useAuth } from "@/hooks/useAuth";
+import { useRouter } from "next/navigation"; 
 
 export default function Header() {
-  const { user, loading, signOut } = useAuth(); // Use auth hook
+  const { user, loading, signOut, signInWithGoogle } = useAuth(); // Added signInWithGoogle for direct login
   const router = useRouter();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // State for mobile menu
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); 
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
@@ -36,16 +33,14 @@ export default function Header() {
         setIsDropdownOpen(false);
       }
     }
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
-  // Get initials for avatar fallback
   const getInitials = (name: string) => {
-    if (!name) return ""; // handle cases where name might be null or undefined
+    if (!name) return "";
     return name
       .split(" ")
       .map((part) => part[0])
@@ -53,14 +48,24 @@ export default function Header() {
       .toUpperCase();
   };
 
+  const handleSignIn = async () => {
+    try {
+      await signInWithGoogle();
+      // UI should reactively update based on useAuth state changes
+      // No explicit redirect needed here as onAuthStateChanged will trigger updates
+    } catch (error) {
+      console.error("Error signing in from header:", error);
+      // Optionally show an error to the user
+    }
+  };
+
   const handleSignOut = async () => {
     try {
       await signOut();
-      setIsDropdownOpen(false); // Close dropdown
-      router.push('/login'); // Redirect to login page after sign out
+      setIsDropdownOpen(false); 
+      router.push('/'); // Redirect to home page after sign out
     } catch (error) {
       console.error("Error signing out from header:", error);
-      // Optionally show an error to the user
     }
   };
 
@@ -83,12 +88,23 @@ export default function Header() {
             </Link>
             <nav className="hidden md:flex space-x-6">
               <Link
-                href="/" // Assuming Dashboard is the home page
+                href="/" 
                 className="text-sm text-gray-600 hover:text-gray-900"
               >
                 Dashboard
               </Link>
-              {/* Add other nav links as needed */}
+              <Link
+                href="#" // Placeholder for Applications page
+                className="text-sm text-gray-600 hover:text-gray-900"
+              >
+                Applications
+              </Link>
+              <Link
+                href="#" // Placeholder for Resources page
+                className="text-sm text-gray-600 hover:text-gray-900"
+              >
+                Resources
+              </Link>
             </nav>
           </div>
 
@@ -118,7 +134,7 @@ export default function Header() {
                 >
                   <Avatar className="h-8 w-8 border border-gray-200">
                     <AvatarImage
-                      src={user.photoURL || "/placeholder.svg"} // Use user's photoURL
+                      src={user.photoURL || "/placeholder.svg"} 
                       alt={user.displayName || "User"}
                     />
                     <AvatarFallback>
@@ -153,7 +169,7 @@ export default function Header() {
                           Your Profile
                         </button>
                       </Link>
-                      <Link href="/settings" passHref> {/* Changed to /settings */}
+                      <Link href="/settings" passHref> 
                         <button
                           onClick={() => setIsDropdownOpen(false)}
                           className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -177,16 +193,15 @@ export default function Header() {
                 )}
               </div>
             ) : (
-              <Link href="/login" passHref>
-                <Button variant="outline" className="text-sm">
-                  <LogIn className="mr-2 h-4 w-4" />
-                  Sign In
-                </Button>
-              </Link>
+              // Sign In button now directly calls handleSignIn
+              <Button variant="outline" className="text-sm" onClick={handleSignIn}>
+                <LogIn className="mr-2 h-4 w-4" />
+                Sign In
+              </Button>
             )}
           </div>
         </div>
-        {/* Mobile Navigation Menu - Conditionally render links based on auth state if needed */}
+        
         {isMobileMenuOpen && (
           <div className="md:hidden mt-3 border-t border-gray-200 pt-3">
             <nav className="flex flex-col space-y-2">
@@ -197,34 +212,15 @@ export default function Header() {
               >
                 Dashboard
               </Link>
-              {/* Add other mobile nav links, potentially conditionally based on auth state */}
-            </nav>
-          </div>
-        )}
-      </header>
-    </>
-  );
-}
-              >
-// Ensure this is the last part of the file if there were specific links here before.
-// For example, if "Applications" and "Resources" were part of the mobile menu:
-// <Link href="/applications" className="block..." onClick={() => setIsMobileMenuOpen(false)}>Applications</Link>
-// <Link href="/resources" className="block..." onClick={() => setIsMobileMenuOpen(false)}>Resources</Link>
-
-// Based on the provided original code, the mobile menu only had Dashboard, Applications, and Resources.
-// We keep Dashboard and can add others if they are meant to be in mobile view.
-// The conceptual guide only shows Dashboard in mobile.
-// For now, I'll keep the mobile nav as it was, assuming the other links were static and not auth-dependent.
-// If mobile nav needs to change based on auth, that logic would be added here.
               <Link
-                href="#" // Assuming Applications is a valid link
+                href="#" // Placeholder for Applications page
                 className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-md"
                 onClick={() => setIsMobileMenuOpen(false)} 
               >
                 Applications 
               </Link>
               <Link
-                href="#" // Assuming Resources is a valid link
+                href="#" // Placeholder for Resources page
                 className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-md"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
