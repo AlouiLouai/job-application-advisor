@@ -42,7 +42,7 @@ export function ChatMessage({
         </div>
       </div>
 
-      <div className="flex-1 p-4 overflow-auto">
+      <div className="flex-1 p-4 overflow-y-auto"> {/* Changed overflow-auto to overflow-y-auto */}
         <div className="space-y-6">
           {messages.map((msg) => (
             <div
