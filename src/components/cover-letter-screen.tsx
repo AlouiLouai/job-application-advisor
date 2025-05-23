@@ -134,16 +134,24 @@ export default function CoverLetterScreen({
             </div>
           )}
         </CardContent>
-        <CardFooter className="flex justify-between">
-          <Button variant="outline" onClick={onBack}>
+        {/* Footer buttons: stack on small, row on medium+ */}
+        <CardFooter className="flex flex-col space-y-2 sm:flex-row sm:justify-between sm:space-y-0 sm:space-x-2 pt-6">
+          {/* Back button - full width on small, auto on medium+ */}
+          <Button variant="outline" onClick={onBack} className="w-full sm:w-auto order-3 sm:order-1">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Results
           </Button>
-          <Button onClick={onReset}>Start Over</Button>
-          {!isLoading && !error && coverLetter && (
+
+          {/* Container for right-aligned buttons */}
+          <div className="flex flex-col space-y-2 sm:flex-row sm:space-x-2 w-full sm:w-auto order-1 sm:order-2">
+            {/* Start Over button - full width on small, auto on medium+ */}
+            <Button onClick={onReset} className="w-full sm:w-auto">Start Over</Button>
+
+            {/* Download PDF button - conditional, full width on small, auto on medium+ */}
+            {!isLoading && !error && coverLetter && (
             <Button
               variant="default"
-              className="bg-green-600 hover:bg-green-700"
+              className="w-full sm:w-auto bg-green-600 hover:bg-green-700"
               onClick={handleDownloadPDF}
               disabled={isPdfGenerating}
             >
@@ -160,6 +168,7 @@ export default function CoverLetterScreen({
               )}
             </Button>
           )}
+          </div>
         </CardFooter>
       </Card>
     </main>

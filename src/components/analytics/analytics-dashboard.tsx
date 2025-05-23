@@ -76,7 +76,8 @@ export default function AnalyticsDashboard() {
         </button>
       </div>
 
-      <div className="grid grid-cols-3 divide-x">
+      {/* Responsive grid: 1 column on small screens, 3 on medium and up */}
+      <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x">
         <StatCard
           icon={<Users className="h-3.5 w-3.5 text-blue-500" />}
           label="Active Users"

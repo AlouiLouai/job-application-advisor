@@ -88,11 +88,11 @@ export default function ResultScreen({ result, onGenerateCoverLetter, onFixCv, o
             </div>
           )}
         </CardContent>
-        <CardFooter className="flex justify-between">
-          <Button variant="outline" onClick={onReset}>
+        <CardFooter className="flex flex-col sm:flex-row sm:justify-between space-y-2 sm:space-y-0 sm:space-x-2">
+          <Button variant="outline" onClick={onReset} className="w-full sm:w-auto">
             Start Over
           </Button>
-          <Button variant="secondary" onClick={onReset}>
+          <Button variant="secondary" onClick={onReset} className="w-full sm:w-auto">
             Try Another Job
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>

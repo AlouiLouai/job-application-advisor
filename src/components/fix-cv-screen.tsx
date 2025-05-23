@@ -136,12 +136,12 @@ export default function FixCvScreen({
             </div>
           )}
         </CardContent>
-        <CardFooter className="flex justify-between">
-          <Button variant="outline" onClick={onBack}>
+        <CardFooter className="flex flex-col sm:flex-row sm:justify-between space-y-2 sm:space-y-0 sm:space-x-2 pt-6">
+          <Button variant="outline" onClick={onBack} className="w-full sm:w-auto">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Results
           </Button>
-          <Button onClick={onReset}>Start Over</Button>
+          <Button onClick={onReset} className="w-full sm:w-auto">Start Over</Button>
         </CardFooter>
       </Card>
     </main>
