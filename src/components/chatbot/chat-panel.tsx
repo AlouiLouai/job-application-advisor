@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Loader2, Send } from "lucide-react";
+import { useAuth } from "@/context/AuthContext"; // Import useAuth
 
 type PanelChatProps = {
   message: string;
@@ -18,6 +19,16 @@ export function ChatPanel({
   isLoading,
   inputRef,
 }: PanelChatProps) {
+  const { user } = useAuth(); // Get user from AuthContext
+
+  let placeholderText = "Ask me anything...";
+  if (user && user.displayName) {
+    const firstName = user.displayName.split(" ")[0];
+    if (firstName) {
+      placeholderText = `Ask anything, ${firstName}...`;
+    }
+  }
+
   return (
     <form
       onSubmit={onSendMessage}
@@ -26,7 +37,7 @@ export function ChatPanel({
       <input
         ref={inputRef}
         type="text"
-        placeholder="Ask me anything..."
+        placeholder={placeholderText} // Use dynamic placeholder
         value={message}
         onChange={(e) => setMessage(e.target.value)}
         disabled={isLoading}

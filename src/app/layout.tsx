@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import { GoogleAnalytics } from "@next/third-parties/google";
 import "./globals.css";
 import Header from "@/components/header"; // Added Header import
+import { AuthProvider } from "@/context/AuthContext"; // Import AuthProvider
 
 // Fonts
 const geistSans = Geist({
@@ -43,13 +44,15 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white text-black flex flex-col h-screen overflow-hidden`}
       >
-        {/* Header with profile */}
-        <Header />
-        
-        {/* Main content */}
-        <main className="flex-1 overflow-hidden">
-          {children}
-        </main>
+        <AuthProvider> {/* Wrap with AuthProvider */}
+          {/* Header with profile */}
+          <Header />
+          
+          {/* Main content */}
+          <main className="flex-1 overflow-hidden">
+            {children}
+          </main>
+        </AuthProvider> {/* End AuthProvider wrap */}
         
         <GoogleAnalytics gaId="G-GYSTWLYX1T" />
       </body>

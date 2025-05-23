@@ -10,25 +10,15 @@ import {
   Settings,
   User,
   LogOut,
+  LogIn, // Added LogIn
 } from "lucide-react";
 import Link from "next/link";
-
-type HeaderUser = {
-  name: string;
-  email: string;
-  image?: string;
-};
+import { useAuth } from "@/context/AuthContext"; // Import useAuth
 
 export default function Header() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
-  // Mock user data - in a real app, this would come from authentication
-  const user: HeaderUser = {
-    name: "John Doe",
-    email: "john.doe@example.com",
-    image: "/placeholder.svg?height=40&width=40",
-  };
+  const { user, isLoading, signInWithGoogle, signOutUser } = useAuth(); // Use AuthContext
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -47,13 +37,20 @@ export default function Header() {
     };
   }, []);
 
-  // Get initials for avatar fallback
-  const getInitials = (name: string) => {
-    return name
-      .split(" ")
-      .map((part) => part[0])
-      .join("")
-      .toUpperCase();
+  // Updated getInitials function
+  const getInitials = (name?: string | null, email?: string | null) => {
+    if (name) {
+      return name
+        .split(" ")
+        .filter(part => part.length > 0) // Ensure parts are not empty strings
+        .map((part) => part[0])
+        .join("")
+        .toUpperCase();
+    }
+    if (email) {
+      return email[0].toUpperCase();
+    }
+    return "U"; // Default fallback
   };
 
   return (
@@ -107,56 +104,77 @@ export default function Header() {
               <Bell className="h-5 w-5" />
             </Button>
 
-            <div className="relative" ref={dropdownRef}>
-              <button
-                className="flex items-center space-x-1 md:space-x-2 focus:outline-none"
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              >
-                <Avatar className="h-8 w-8 border border-gray-200">
-                  <AvatarImage
-                    src={user.image || "/placeholder.svg"}
-                    alt={user.name}
+            {/* Auth section: Loading, User Dropdown, or Sign In Button */}
+            {isLoading ? (
+              <div className="h-8 w-8 rounded-full bg-gray-200 animate-pulse" />
+            ) : user ? (
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  className="flex items-center space-x-1 md:space-x-2 focus:outline-none"
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                >
+                  <Avatar className="h-8 w-8 border border-gray-200">
+                    <AvatarImage
+                      src={user.photoURL || undefined}
+                      alt={user.displayName || "User"}
+                    />
+                    <AvatarFallback>{getInitials(user.displayName, user.email)}</AvatarFallback>
+                  </Avatar>
+                  <ChevronDown
+                    className={`h-4 w-4 text-gray-500 transition-transform ${
+                      isDropdownOpen ? "rotate-180" : ""
+                    }`}
                   />
-                  <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
-                </Avatar>
-                <ChevronDown
-                  className={`h-4 w-4 text-gray-500 transition-transform ${
-                    isDropdownOpen ? "rotate-180" : ""
-                  }`}
-                />
-              </button>
+                </button>
 
-              {isDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
-                  <div className="px-4 py-3 border-b border-gray-100">
-                    <p className="text-sm font-medium text-gray-900">
-                      {user.name}
-                    </p>
-                    <p className="text-xs text-gray-500 truncate">
-                      {user.email}
-                    </p>
-                  </div>
+                {isDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
+                    <div className="px-4 py-3 border-b border-gray-100">
+                      <p className="text-sm font-medium text-gray-900">
+                        {user.displayName || "User"}
+                      </p>
+                      <p className="text-xs text-gray-500 truncate">
+                        {user.email || "No email"}
+                      </p>
+                    </div>
 
-                  <div className="py-1">
-                    <button className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                      <User className="h-4 w-4 mr-3 text-gray-500" />
-                      Your Profile
-                    </button>
-                    <button className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                      <Settings className="h-4 w-4 mr-3 text-gray-500" />
-                      Settings
-                    </button>
-                  </div>
+                    <div className="py-1">
+                      <button className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        <User className="h-4 w-4 mr-3 text-gray-500" />
+                        Your Profile
+                      </button>
+                      <button className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        <Settings className="h-4 w-4 mr-3 text-gray-500" />
+                        Settings
+                      </button>
+                    </div>
 
-                  <div className="py-1 border-t border-gray-100">
-                    <button className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
-                      <LogOut className="h-4 w-4 mr-3 text-red-500" />
-                      Sign out
-                    </button>
+                    <div className="py-1 border-t border-gray-100">
+                      <button 
+                        onClick={async () => {
+                          await signOutUser();
+                          setIsDropdownOpen(false); // Close dropdown
+                        }}
+                        className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                      >
+                        <LogOut className="h-4 w-4 mr-3 text-red-500" />
+                        Sign out
+                      </button>
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+            ) : (
+              <Button 
+                variant="outline" 
+                onClick={signInWithGoogle}
+                className="text-sm"
+              >
+                <LogIn className="h-4 w-4 mr-2" />
+                Sign in with Google
+              </Button>
+            )}
+            {/* End Auth section */}
           </div>
         </div>
       </header>
