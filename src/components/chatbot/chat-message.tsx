@@ -48,7 +48,7 @@ export function ChatMessage({
             <div
               key={msg.id}
               className={cn(
-                "flex",
+                "flex animate-fade-in-up animate-duration-300", // Added animation for new messages
                 msg.role === "user" ? "justify-end" : "justify-start"
               )}
             >
@@ -125,7 +125,7 @@ export function ChatMessage({
                   <button
                     key={question.id}
                     onClick={() => onSuggestedQuestionClick(question.text)}
-                    className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1.5 rounded-full transition-colors border border-gray-200"
+                    className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1.5 rounded-full transition-colors border border-gray-200 animate-fade-in animate-duration-300 animate-delay-200" // Added animation for suggested questions
                   >
                     {question.text}
                   </button>

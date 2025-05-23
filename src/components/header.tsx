@@ -58,13 +58,14 @@ export default function Header() {
 
   return (
     <>
-      <header className="w-full bg-yellow-100 border-b border-yellow-300 text-yellow-900 text-sm p-2 text-center font-medium">
+      <header className="w-full bg-yellow-100 border-b border-yellow-300 text-yellow-900 text-sm p-2 text-center font-medium hidden md:block">
         🚧 The top navbar is under construction — features coming soon!
       </header>
-      <header className="bg-white border-b border-gray-200 py-2 px-4">
+      <header className="bg-white border-b border-gray-200 py-3 px-4 md:px-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
-            <div className="text-green-600 font-bold text-lg mr-8">
+            {/* Added md:mr-8 for larger screens, reduced default margin */}
+            <div className="text-green-600 font-bold text-lg mr-4 md:mr-8">
               JobAdvisor
             </div>
             <nav className="hidden md:flex space-x-6">
@@ -89,7 +90,8 @@ export default function Header() {
             </nav>
           </div>
 
-          <div className="flex items-center space-x-4">
+          {/* Adjusted spacing for icons on different screen sizes */}
+          <div className="flex items-center space-x-2 md:space-x-4">
             <Button
               variant="ghost"
               size="icon"
@@ -107,7 +109,7 @@ export default function Header() {
 
             <div className="relative" ref={dropdownRef}>
               <button
-                className="flex items-center space-x-2 focus:outline-none"
+                className="flex items-center space-x-1 md:space-x-2 focus:outline-none"
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               >
                 <Avatar className="h-8 w-8 border border-gray-200">

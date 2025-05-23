@@ -25,6 +25,7 @@ import FixCvScreen from "@/components/fix-cv-screen";
 import AnalyticsDashboard from "@/components/analytics/analytics-dashboard";
 import { Chat } from "@/components/chatbot/chat";
 import { useApplicationAnalyzer } from "@/hooks/useApplicationAnalyzer";
+import OnboardingFlow from "@/components/onboarding/onboarding-flow"; // Import OnboardingFlow
 
 export default function Home() {
   const {
@@ -43,6 +44,7 @@ export default function Home() {
     handleSubmit,
     handleFileChange,
     animateIn,
+    analysisProgress, // Assuming this is provided by the hook
   } = useApplicationAnalyzer();
 
   // Render the appropriate screen based on the current state
@@ -120,8 +122,8 @@ export default function Home() {
                     Upload your CV (PDF)
                   </label>
                   <div
-                    className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-all ${
-                      file ? "border-green-500 bg-green-50" : "border-gray-300"
+                    className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 ease-in-out hover:shadow-md hover:border-green-400 ${
+                      file ? "border-green-500 bg-green-50" : "border-gray-300 hover:bg-gray-50"
                     }`}
                     onClick={() =>
                       document.getElementById("cv-upload")?.click()
@@ -213,7 +215,8 @@ export default function Home() {
                 </h3>
                 <p className="text-xs text-gray-500">This may take a moment</p>
               </div>
-              <Progress value={65} className="h-2 rounded-full" />
+              {/* Use the dynamic progress value from the hook */}
+              <Progress value={analysisProgress} className="h-2 rounded-full" />
             </div>
           )}
         </div>
@@ -222,23 +225,29 @@ export default function Home() {
   };
 
   return (
-    <div
-      className={`flex h-full overflow-hidden transition-opacity duration-500 ${
-        animateIn ? "opacity-100" : "opacity-0"
-      }`}
-    >
-      {/* Main content - 2/3 width */}
-      <div className="w-2/3 h-full overflow-auto p-4">
-        {renderMainContent()}
-      </div>
+    <> {/* Use a fragment to allow OnboardingFlow to be a sibling */}
+      <OnboardingFlow /> {/* Add OnboardingFlow here */}
+      <div
+        className={`flex flex-col md:flex-row h-full overflow-hidden ${
+          animateIn ? "animate-fade-in-up animate-duration-500" : "opacity-0"
+        }`}
+      >
+        {/* Main content - full width on small screens, 2/3 on medium and up */}
+        <div className="w-full md:w-2/3 h-full overflow-auto p-4">
+          {renderMainContent()}
+        </div>
 
-      {/* Chat panel - 1/3 width */}
-      <div className="relative w-1/3 h-full border-l border-gray-200 bg-gray-50 group">
-        {/* Chat panel always visible and interactive */}
-        <div className="h-full w-full">
-          <Chat />
+        {/* Chat panel - full width on small screens, 1/3 on medium and up */}
+        {/* Added a subtle slide-in from right for the chat panel for visual appeal */}
+        <div className={`relative w-full md:w-1/3 h-full border-t md:border-t-0 md:border-l border-gray-200 bg-gray-50 group ${
+          animateIn ? "animate-slide-in-right animate-duration-500 animate-delay-200" : "opacity-0"
+        }`}>
+          {/* Chat panel always visible and interactive */}
+          <div className="h-full w-full">
+            <Chat />
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
