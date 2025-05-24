@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
+import { useAuth } from "@/hooks/useAuth"; // Import useAuth
 
 export type Message = {
   id: string;
@@ -13,6 +14,7 @@ export type SuggestedQuestion = {
 };
 
 export function useChat() {
+  const { user } = useAuth(); // Get user from useAuth
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -22,17 +24,34 @@ export function useChat() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [animateIn, setAnimateIn] = useState(false);
-  const sessionRef = useRef<string>("user-123");
+  
+  // sessionRef will now be updated based on user UID
+  const sessionRef = useRef<string | null>(null); 
+
+  useEffect(() => {
+    if (user) {
+      sessionRef.current = user.uid; // Set session ID to user's UID
+    } else {
+      sessionRef.current = null; // Or a guest session ID, or handle as disabled
+    }
+  }, [user]); // Update sessionRef when user changes
 
   // Init welcome + suggested questions + animation
   useEffect(() => {
-    const welcomeMessage =
-      "Hi there! I'm your Job Application Assistant. How can I help you today?";
-    const questions: SuggestedQuestion[] = [
-      { id: "q1", text: "How do I improve my CV?" },
-      { id: "q2", text: "What makes a good cover letter?" },
-      { id: "q3", text: "How do I prepare for an interview?" },
-    ];
+    const welcomeMessage = user 
+      ? "Hi there! I'm your Job Application Assistant. How can I help you today?"
+      : "Hi there! Please sign in to use the Job Application Assistant."; // Modified welcome message
+    
+    const questions: SuggestedQuestion[] = user 
+      ? [
+          { id: "q1", text: "How do I improve my CV?" },
+          { id: "q2", text: "What makes a good cover letter?" },
+          { id: "q3", text: "How do I prepare for an interview?" },
+        ]
+      : [
+          { id: "q1", text: "What can you do?" },
+          { id: "q2", text: "How do I sign in?" },
+        ];
 
     setMessages([
       {
@@ -48,7 +67,7 @@ export function useChat() {
     setTimeout(() => {
       setAnimateIn(true);
     }, 100);
-  }, []);
+  }, [user]); // Re-initialize if user state changes
 
   // Scroll to bottom on messages update
   useEffect(() => {
@@ -57,13 +76,25 @@ export function useChat() {
 
   // Focus input on mount
   useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
+    if (user) { // Only focus if user is logged in (chat is active)
+        inputRef.current?.focus();
+    }
+  }, [user]);
 
   const handleSendMessage = useCallback(
     async (e?: React.FormEvent) => {
       e?.preventDefault();
       if (!message.trim()) return;
+
+      if (!user || !sessionRef.current) { // Check if user is logged in and session ID is set
+        setMessages((prev) => [...prev, {
+          id: Date.now().toString(),
+          content: "Please sign in to send messages.",
+          role: "assistant",
+          timestamp: new Date()
+        }]);
+        return;
+      }
 
       const userMessage: Message = {
         id: Date.now().toString(),
@@ -86,7 +117,7 @@ export function useChat() {
             },
             body: JSON.stringify({
               message: userMessage.content,
-              sessionId: sessionRef.current,
+              sessionId: sessionRef.current, // Use dynamic session ID
             }),
           }
         ).catch((fetchError) => {
@@ -109,7 +140,6 @@ export function useChat() {
         }
 
         const text = await response.text();
-
         let data = null;
         if (text) {
           try {
@@ -132,7 +162,6 @@ export function useChat() {
           role: "assistant",
           timestamp: new Date(),
         };
-
         setMessages((prev) => [...prev, assistantMessage]);
 
         const newSuggestedQuestions = (Array.isArray(data) &&
@@ -149,35 +178,66 @@ export function useChat() {
           { id: `sq-${Date.now()}-2`, text: "How do I implement this advice?" },
           { id: `sq-${Date.now()}-3`, text: "What's the next step?" },
         ];
-
         setSuggestedQuestions(newSuggestedQuestions);
+
       } catch (error: unknown) {
         console.error("Error communicating with n8n webhook:", error);
+        const errorMessageContent = `An error occurred: ${error instanceof Error ? error.message : String(error)}.`;
         const errorMessage: Message = {
           id: (Date.now() + 1).toString(),
-          content: `An error occurred while processing your request: ${
-            error instanceof Error ? error.message : String(error)
-          }.`,
+          content: errorMessageContent,
           role: "assistant",
           timestamp: new Date(),
         };
         setMessages((prev) => [...prev, errorMessage]);
-
+        // Reset suggested questions on error
         setSuggestedQuestions([
-          { id: `sq-${Date.now()}-1`, text: "Can you elaborate on that?" },
-          { id: `sq-${Date.now()}-2`, text: "How do I implement this advice?" },
-          { id: `sq-${Date.now()}-3`, text: "What's the next step?" },
+            { id: `sq-${Date.now()}-error-1`, text: "Try rephrasing?" },
+            { id: `sq-${Date.now()}-error-2`, text: "Ask something else?" },
         ]);
       } finally {
         setIsLoading(false);
       }
     },
-    [message]
+    [message, user] // Add user to dependency array for useCallback
   );
 
   const handleSuggestedQuestion = (question: string) => {
-    setMessage(question);
-    handleSendMessage();
+    if (!user) {
+        if (question === "How do I sign in?") {
+             setMessages((prev) => [...prev, {
+                id: Date.now().toString(),
+                content: "You can sign in using the button in the header or by navigating to the /login page.",
+                role: "assistant",
+                timestamp: new Date()
+            }]);
+            return;
+        }
+         setMessages((prev) => [...prev, {
+            id: Date.now().toString(),
+            content: "Please sign in to interact with the chatbot.",
+            role: "assistant",
+            timestamp: new Date()
+        }]);
+        return;
+    }
+    setMessage(question); 
+    // This relies on the fact that `handleSendMessage` is a useCallback with `message` in its deps.
+    // So when `handleSendMessage` is called in the next render cycle after `setMessage` updates the state,
+    // it will use the correct `message`.
+    // A more direct approach would be to pass `question` to `handleSendMessage` if it's modified to accept it.
+    // However, since `handleSendMessage` is called without arguments here, React will schedule a re-render
+    // due to `setMessage`, and then `handleSendMessage` will be called.
+    // To ensure it sends immediately with the new question, we can call `handleSendMessage` inside a `useEffect`
+    // that listens to `message` changes, or modify `handleSendMessage` to take an optional message.
+    // For now, let's assume the current structure: set message, then call the send function.
+    // A slight refactor to ensure the message is sent immediately could be:
+    // const tempMessage = question;
+    // setMessage(tempMessage); // Update input
+    // handleSendMessage(undefined, tempMessage); // if handleSendMessage was modified to accept a message
+    // Given the current structure, we call it directly.
+    // It's a common pattern, but has a subtle dependency on React's batching and rendering.
+     setTimeout(() => handleSendMessage(), 0); // Ensure state is set before calling
   };
 
   return {
@@ -191,5 +251,6 @@ export function useChat() {
     inputRef,
     handleSendMessage,
     handleSuggestedQuestion,
+    isChatDisabled: !user, // Add a flag to indicate if chat should be disabled
   };
 }

@@ -18,6 +18,7 @@ export function Chat() {
     inputRef,
     handleSendMessage,
     handleSuggestedQuestion,
+    isChatDisabled, // Get isChatDisabled from useChat
   } = useChat();
 
   return (
@@ -40,6 +41,7 @@ export function Chat() {
         onSendMessage={handleSendMessage}
         isLoading={isLoading}
         inputRef={inputRef}
+        isChatDisabled={isChatDisabled} // Pass isChatDisabled to ChatPanel
       />
     </div>
   );
