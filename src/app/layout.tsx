@@ -42,14 +42,14 @@ export default function RootLayout({
   return (
     <html lang="en" dir="ltr" className="scroll-smooth">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white text-black flex flex-col h-screen overflow-hidden`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white text-black flex flex-col h-screen`}
       >
         <AuthProvider> {/* Wrap with AuthProvider */}
           {/* Header with profile */}
           <Header />
           
           {/* Main content */}
-          <main className="flex-1 overflow-hidden">
+          <main className="flex-1 overflow-y-auto">
             {children}
           </main>
           

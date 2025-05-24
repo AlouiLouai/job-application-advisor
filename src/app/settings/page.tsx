@@ -39,7 +39,7 @@ const SettingsPage: React.FC = () => {
 
   // Original page content follows if user is authenticated
   return (
-    <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8 max-w-2xl min-h-screen overflow-y-auto pb-16">
+    <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8 max-w-2xl pb-16">
       <div className="bg-white shadow-xl rounded-lg p-6 sm:p-8">
         <div className="flex items-center mb-6">
           <SettingsIcon className="h-8 w-8 text-green-600 mr-3" />
