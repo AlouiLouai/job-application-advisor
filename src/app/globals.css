@@ -116,7 +116,13 @@
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    @apply h-full; /* Equivalent to height: 100% */
+  }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground min-h-full overflow-y-auto relative; 
+    /* min-h-full is Tailwind for min-height: 100% */
+    /* overflow-y-auto allows vertical scroll */
+    /* relative can help establish a stacking context if needed */
   }
 }
