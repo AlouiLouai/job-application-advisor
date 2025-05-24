@@ -1,17 +1,14 @@
 "use client";
-
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { User, Edit3, Save, Loader2, Camera, AlertTriangle } from 'lucide-react'; // Added AlertTriangle
-import { updateProfile } from 'firebase/auth'; // Import updateProfile
+import { User, Edit3, Save, Loader2, Camera, AlertTriangle } from 'lucide-react'; 
+import { updateProfile } from 'firebase/auth';
 
 const ProfilePage: React.FC = () => {
   const { user, loading: authLoading } = useAuth();
-  const router = useRouter(); // Keep router if needed for other things, but not for login redirect
 
   const [displayName, setDisplayName] = useState('');
   const [photoURL, setPhotoURL] = useState('');
@@ -26,7 +23,7 @@ const ProfilePage: React.FC = () => {
       setDisplayName(user.displayName || '');
       setPhotoURL(user.photoURL || '');
     }
-  }, [user]); // Removed authLoading and router from dependencies
+  }, [user]);
 
   const handleEditToggle = () => {
     if (isEditing) {
@@ -37,8 +34,8 @@ const ProfilePage: React.FC = () => {
       }
     }
     setIsEditing(!isEditing);
-    setError(null); // Clear error when toggling edit mode
-    setSuccessMessage(null); // Clear success message
+    setError(null); 
+    setSuccessMessage(null);
   };
 
   const handleSaveChanges = async () => {
@@ -92,7 +89,7 @@ const ProfilePage: React.FC = () => {
         <AlertTriangle className="h-16 w-16 text-yellow-500 mb-6" />
         <h1 className="text-2xl font-semibold text-gray-800 mb-3">Access Denied</h1>
         <p className="text-gray-600 mb-8 max-w-md">
-          You need to be signed in to view your profile. Please use the 'Sign In' button in the header to authenticate.
+          You need to be signed in to view your profile. Please use the Sign In button in the header to authenticate.
         </p>
       </div>
     );
