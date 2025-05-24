@@ -97,7 +97,7 @@ const ProfilePage: React.FC = () => {
 
   // Original page content follows if user is authenticated
   return (
-    <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8 max-w-2xl">
+    <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8 max-w-2xl min-h-screen overflow-y-auto pb-16">
       <div className="bg-white shadow-xl rounded-lg p-6 sm:p-8">
         <div className="flex flex-col items-center sm:flex-row sm:items-start mb-8">
           <div className="relative group mb-4 sm:mb-0 sm:mr-6">
