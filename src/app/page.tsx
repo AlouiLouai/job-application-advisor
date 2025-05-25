@@ -1,5 +1,5 @@
 "use client";
-import type React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -18,16 +18,19 @@ import {
   CheckCircle,
   ChevronRight,
   Sparkles,
+  MessageSquare, // Added for chat button icon
 } from "lucide-react";
 import ResultScreen from "@/components/result-screen";
 import CoverLetterScreen from "@/components/cover-letter-screen";
 import FixCvScreen from "@/components/fix-cv-screen";
 import AnalyticsDashboard from "@/components/analytics/analytics-dashboard";
 import { Chat } from "@/components/chatbot/chat";
+import { Modal } from "@/components/ui/modal"; // Added Modal import
 import { useApplicationAnalyzer } from "@/hooks/useApplicationAnalyzer";
 import OnboardingFlow from "@/components/onboarding/onboarding-flow"; // Import OnboardingFlow
 
 export default function Home() {
+  const [isChatModalOpen, setIsChatModalOpen] = useState(false); // Added state for modal visibility
   const {
     currentScreen,
     result,
@@ -240,7 +243,8 @@ export default function Home() {
         {/* Chat panel - full width on small screens, 1/3 on medium and up */}
         {/* Added a subtle slide-in from right for the chat panel for visual appeal */}
         {/* Changed h-full to h-auto for mobile, md:h-full for desktop to prevent excessive height on mobile */}
-        <div className={`relative w-full md:w-1/3 h-[50vh] md:h-full border-t md:border-t-0 md:border-l border-gray-200 bg-gray-50 group ${
+        {/* MODIFIED: Existing Chat Panel - now hidden on mobile, visible on md and up */}
+        <div className={`hidden md:flex relative w-full md:w-1/3 h-[50vh] md:h-full border-t md:border-t-0 md:border-l border-gray-200 bg-gray-50 group ${
           animateIn ? "animate-slide-in-right animate-duration-500 animate-delay-200" : "opacity-0"
         }`}>
           {/* Chat panel always visible and interactive */}
@@ -250,6 +254,27 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      {/* ADDED: Chat Modal for Mobile */}
+      <Modal
+        isOpen={isChatModalOpen}
+        onClose={() => setIsChatModalOpen(false)}
+        title="Chat Assistant"
+        className="sm:max-w-lg md:max-w-lg lg:max-w-xl" // Control modal width
+      >
+        <div className="h-[70vh] sm:h-[60vh]"> {/* Define height for chat content within modal */}
+          <Chat />
+        </div>
+      </Modal>
+
+      {/* ADDED: Floating Chat Button for Mobile */}
+      <Button
+        onClick={() => setIsChatModalOpen(true)}
+        className="md:hidden fixed bottom-4 right-4 z-50 p-3 rounded-full shadow-lg bg-green-600 hover:bg-green-700 text-white"
+        aria-label="Open chat"
+      >
+        <MessageSquare size={24} />
+      </Button>
     </>
   );
 }
